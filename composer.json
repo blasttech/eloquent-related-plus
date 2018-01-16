@@ -1,0 +1,37 @@
+{
+  "name": "blasttech/eloquent-related-plus",
+  "description": "Adds search and order functionality to Laravel Eloquent related models",
+  "homepage": "https://github.com/blasttech/eloquent-related-plus",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Michael Blair",
+      "email": "mhkblair@gmail.com"
+    }
+  ],
+  "keywords":
+  [
+    "orderBy",
+    "eloquent",
+    "model",
+    "laravel"
+  ],
+  "require": {
+    "php": ">=7.0",
+    "illuminate/database": "~5.3.0|~5.4.0|~5.5.0",
+    "illuminate/support": "~5.3.0|~5.4.0|~5.5.0"
+  },
+  "require-dev": {
+    "phpunit/phpunit" : "^5.7|^6.2"
+  },
+  "autoload": {
+    "psr-4": {
+      "Blasttech\\RelatedPlus\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Blasttech\\RelatedPlus\\Test\\": "tests"
+    }
+  }
+}
