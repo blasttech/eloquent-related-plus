@@ -7,12 +7,6 @@ use Illuminate\Database\Eloquent\Builder;
 /**
  * Interface RelatedPlus
  *
- * @method hasManyJoin($column, $relation, $table, $direction)
- * @method modelJoin($relation_name, $operator = '=', $type = 'left', $where = false, $related_select = true)
- * @method orderByCheckModel($column, $direction)
- * @method relationJoin($table_name, $table_alias, $relation, $operator, $type, $where)
- * @method setCustomOrder($column, $direction)
- *
  * @package Blasttech\RelatedPlus
  */
 interface RelatedPlus
