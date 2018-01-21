@@ -11,6 +11,7 @@
   ],
   "keywords":
   [
+    "join",
     "orderBy",
     "eloquent",
     "model",
@@ -26,12 +27,12 @@
   },
   "autoload": {
     "psr-4": {
-      "Blasttech\\RelatedPlus\\": "src/"
+      "Blasttech\\EloquentRelatedPlus\\": "src/"
     }
   },
   "autoload-dev": {
     "psr-4": {
-      "Blasttech\\RelatedPlus\\Test\\": "tests"
+      "Blasttech\\EloquentRelatedPlus\\Test\\": "tests"
     }
   }
 }

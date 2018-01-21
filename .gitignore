@@ -1,3 +1,4 @@
 /vendor
 composer.phar
 composer.lock
+_ide_helper.php
