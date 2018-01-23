@@ -234,9 +234,12 @@ trait RelatedPlusTrait
      */
     public function scopeOrderByCustom(Builder $query, $order_field, $dir, $order_fields = null, $order_defaults = null)
     {
-        if (!isset($this->order_fields) || !is_array($this->order_fields)
-            || !isset($this->order_defaults) || !is_array($this->order_defaults)) {
-            throw new InvalidArgumentException(get_class($this) . ' order properties not set correctly.');
+        if (!isset($this->order_fields) || !is_array($this->order_fields)) {
+            throw new InvalidArgumentException(get_class($this) . ' order fields not set correctly.');
+        }
+
+        if (is_null($order_defaults) && (!isset($this->order_defaults) || !is_array($this->order_defaults))) {
+            throw new InvalidArgumentException(get_class($this) . ' order defaults not set and not overriden.');
         }
 
         // Remove order global scope if it exists
