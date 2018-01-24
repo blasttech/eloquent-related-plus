@@ -238,7 +238,9 @@ trait RelatedPlusTrait
             throw new InvalidArgumentException(get_class($this) . ' order fields not set correctly.');
         }
 
-        if (is_null($order_defaults) && (!isset($this->order_defaults) || !is_array($this->order_defaults))) {
+        if (($order_field === '' || $dir === '')
+            && is_null($order_defaults)
+            && (!isset($this->order_defaults) || !is_array($this->order_defaults))) {
             throw new InvalidArgumentException(get_class($this) . ' order defaults not set and not overriden.');
         }
 
