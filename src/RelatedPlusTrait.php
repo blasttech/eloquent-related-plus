@@ -313,14 +313,16 @@ trait RelatedPlusTrait
      */
     public function scopeSetCustomOrder(Builder $query, $column, $direction)
     {
-        // If $column not in order_fields list, use default
-        if ($column == '' || !isset($this->order_fields[$column])) {
-            $column = $this->order_defaults['field'];
-        }
+        if (isset($this->order_defaults)) {
+            // If $column not in order_fields list, use default
+            if ($column == '' || !isset($this->order_fields[$column])) {
+                $column = $this->order_defaults['field'];
+            }
 
-        // If $direction not asc or desc, use default
-        if ($direction == '' || !in_array(strtoupper($direction), ['ASC', 'DESC'])) {
-            $direction = $this->order_defaults['dir'];
+            // If $direction not asc or desc, use default
+            if ($direction == '' || !in_array(strtoupper($direction), ['ASC', 'DESC'])) {
+                $direction = $this->order_defaults['dir'];
+            }
         }
 
         if (!is_array($this->order_fields[$column])) {
