@@ -228,18 +228,15 @@ trait RelatedPlusTrait
      * @param Builder|RelatedPlus $query
      * @param string $order_field
      * @param string $dir
-     * @param array|null $order_fields
-     * @param array|null $order_defaults
      * @return Builder
      */
-    public function scopeOrderByCustom(Builder $query, $order_field, $dir, $order_fields = null, $order_defaults = null)
+    public function scopeOrderByCustom(Builder $query, $order_field, $dir)
     {
         if (!isset($this->order_fields) || !is_array($this->order_fields)) {
             throw new InvalidArgumentException(get_class($this) . ' order fields not set correctly.');
         }
 
         if (($order_field === '' || $dir === '')
-            && is_null($order_defaults)
             && (!isset($this->order_defaults) || !is_array($this->order_defaults))) {
             throw new InvalidArgumentException(get_class($this) . ' order defaults not set and not overriden.');
         }
@@ -249,16 +246,6 @@ trait RelatedPlusTrait
         $global_scopes = $this->getGlobalScopes();
         if (isset($global_scopes['order'])) {
             $query->withoutGlobalScope('order');
-        }
-
-        // Override order fields if set
-        if (!is_null($order_fields)) {
-            $this->setOrderFields($order_fields);
-        }
-
-        // Override order defaults if set
-        if (!is_null($order_defaults)) {
-            $this->setOrderDefaults($order_defaults);
         }
 
         $query->setCustomOrder($order_field, $dir);

@@ -58,11 +58,9 @@ interface RelatedPlus
      * @param Builder $query
      * @param string $order_field
      * @param string $dir
-     * @param array|null $order_fields
-     * @param array|null $order_defaults
      * @return Builder
      */
-    public function scopeOrderByCustom(Builder $query, $order_field, $dir, $order_fields = null, $order_defaults = null);
+    public function scopeOrderByCustom(Builder $query, $order_field, $dir);
 
     /**
      * Check if column being sorted by is from a related model
