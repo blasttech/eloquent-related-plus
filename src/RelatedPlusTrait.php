@@ -193,7 +193,7 @@ trait RelatedPlusTrait
      */
     public function scopeRelationJoin(Builder $query, $table_name, $table_alias, $relation, $operator, $type, $where)
     {
-        if ($table_alias !== '') {
+        if ($table_alias !== '' && $table_name !== $table_alias) {
             $full_table_name = $table_name . ' AS ' . $table_alias;
         } else {
             $full_table_name = $table_name;
