@@ -100,13 +100,23 @@ trait RelatedPlusTrait
     /**
      * Return the sql for a query with the bindings replaced with the binding values
      *
-     * @param Builder $model
+     * @param Builder $builder
      * @return string
      */
-    public function sqlWithBindings($model)
+    public function sqlWithBindings(Builder $builder)
     {
-        $query = str_replace(['?'], ['\'%s\''], $model->toSql());
-        return vsprintf($query, array_map('addslashes', $model->getBindings()));
+        return vsprintf($this->replacePlaceholders($builder), array_map('addslashes', $builder->getBindings()));
+    }
+
+    /**
+     * Replace SQL placeholders with '%s'
+     *
+     * @param Builder $builder
+     * @return mixed
+     */
+    private function replacePlaceholders(Builder $builder)
+    {
+        return str_replace(['?'], ['\'%s\''], $builder->toSql());
     }
 
     /**
