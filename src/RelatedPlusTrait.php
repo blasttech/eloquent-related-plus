@@ -311,7 +311,7 @@ trait RelatedPlusTrait
 
                 foreach ($this->parseRelationNames($column_relations) as $relation) {
                     if (get_class($relation) === HasMany::class) {
-                            $query->hasManyJoin($column, $relation, $table, $direction);
+                        $query->hasManyJoin($column, $relation, $table, $direction);
                     }
                 }
             }
