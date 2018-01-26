@@ -217,18 +217,36 @@ trait RelatedPlusTrait
         ) {
             // Get relation join columns
             $joinColumns = $this->getJoinColumns($relation);
-            $first = $joinColumns->first;
-            $second = $joinColumns->second;
-            if ($table_name !== $table_alias) {
-                $first = str_replace($table_name, $table_alias, $first);
-                $second = str_replace($table_name, $table_alias, $second);
+
+            // If a HasOne relation and ordered - ie join to the latest/earliest
+            if (class_basename($relation) === 'HasOne' && !empty($relation->toBase()->orders)) {
+                // Get first relation order (should only be one)
+                $order = $relation->toBase()->orders[0];
+
+                // Build subquery for getting first/last record in related table
+                $subQuery = $relation
+                    ->getRelated()
+                    ->newQuery()
+                    ->whereColumn($joinColumns->first, $joinColumns->second)
+                    ->setBindings($relation->getBindings())
+                    ->select($order['column'])
+                    ->orderBy($order['column'], $order['direction'])
+                    ->limit(1);
+
+                return $join->on($order['column'], DB::raw('(' . $this->sqlWithBindings($subQuery) . ')'));
+            } else {
+                $first = $joinColumns->first;
+                $second = $joinColumns->second;
+                if ($table_name !== $table_alias) {
+                    $first = str_replace($table_name, $table_alias, $first);
+                    $second = str_replace($table_name, $table_alias, $second);
+                }
+
+                $join->on($first, $operator, $second);
+
+                // Add any where clauses from the relationship
+                return $this->addWhereConstraints($relation, $join, $table_alias);
             }
-            $join->on($first, $operator, $second);
-
-            // Add any where clauses from the relationship
-            $join = $this->addWhereConstraints($relation, $join, $table_alias);
-
-            return $join;
         }, null, null, $type, $where);
     }
 
