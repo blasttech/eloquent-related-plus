@@ -120,30 +120,6 @@ trait RelatedPlusTrait
     }
 
     /**
-     * Get the relations from a relation name
-     *
-     * @param $relation_name
-     * @return Relation[]
-     */
-    protected function parseRelationNames($relation_name)
-    {
-        $relation_names = explode('.', $relation_name);
-        $parent_relation_name = null;
-        $relations = [];
-
-        foreach ($relation_names as $relation_name) {
-            if (is_null($parent_relation_name)) {
-                $relations[] = $this->$relation_name();
-                $parent_relation_name = $this->$relation_name()->getRelated();
-            } else {
-                $relations[] = $parent_relation_name->$relation_name();
-            }
-        }
-
-        return $relations;
-    }
-
-    /**
      * This determines the foreign key relations automatically to prevent the need to figure out the columns.
      *
      * @param Builder|RelatedPlus $query
@@ -187,6 +163,30 @@ trait RelatedPlusTrait
         }
 
         return $query;
+    }
+
+    /**
+     * Get the relations from a relation name
+     *
+     * @param $relation_name
+     * @return Relation[]
+     */
+    protected function parseRelationNames($relation_name)
+    {
+        $relation_names = explode('.', $relation_name);
+        $parent_relation_name = null;
+        $relations = [];
+
+        foreach ($relation_names as $relation_name) {
+            if (is_null($parent_relation_name)) {
+                $relations[] = $this->$relation_name();
+                $parent_relation_name = $this->$relation_name()->getRelated();
+            } else {
+                $relations[] = $parent_relation_name->$relation_name();
+            }
+        }
+
+        return $relations;
     }
 
     /**
@@ -248,6 +248,26 @@ trait RelatedPlusTrait
                 return $this->addWhereConstraints($relation, $join, $table_alias);
             }
         }, null, null, $type, $where);
+    }
+
+    /**
+     * Get the join columns for a relation
+     *
+     * @param Relation|BelongsTo|HasOneOrMany $relation
+     * @return \stdClass
+     */
+    protected function getJoinColumns($relation)
+    {
+        // Get keys with table names
+        if ($relation instanceof BelongsTo) {
+            $first = $relation->getOwnerKey();
+            $second = $relation->getForeignKey();
+        } else {
+            $first = $relation->getQualifiedParentKeyName();
+            $second = $relation->getQualifiedForeignKeyName();
+        }
+
+        return (object)['first' => $first, 'second' => $second];
     }
 
     /**
@@ -438,26 +458,6 @@ trait RelatedPlusTrait
 
             return $sub_query;
         });
-    }
-
-    /**
-     * Get the join columns for a relation
-     *
-     * @param Relation|BelongsTo|HasOneOrMany $relation
-     * @return \stdClass
-     */
-    protected function getJoinColumns($relation)
-    {
-        // Get keys with table names
-        if ($relation instanceof BelongsTo) {
-            $first = $relation->getOwnerKey();
-            $second = $relation->getForeignKey();
-        } else {
-            $first = $relation->getQualifiedParentKeyName();
-            $second = $relation->getQualifiedForeignKeyName();
-        }
-
-        return (object)['first' => $first, 'second' => $second];
     }
 
     /**
