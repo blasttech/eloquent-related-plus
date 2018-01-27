@@ -510,6 +510,16 @@ trait RelatedPlusTrait
         }
 
         return $builder;
+    /**
+     * Add backticks to a table/column
+     *
+     * @param $column
+     * @return string
+     */
+    private function addBackticks($column)
+    {
+        return preg_match('/^[0-9a-zA-Z\.]*$/', $column) ? '`' . str_replace(['`', '.'], ['', '`.`'],
+                $column) . '`' : $column;
     }
 
     /**
