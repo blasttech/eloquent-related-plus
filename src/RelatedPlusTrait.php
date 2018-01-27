@@ -146,7 +146,7 @@ trait RelatedPlusTrait
     /**
      * Join a model
      *
-     * @param Builder $query
+     * @param Builder|RelatedPlus $query
      * @param string $table_name
      * @param string $table_alias
      * @param Relation $relation
@@ -403,7 +403,7 @@ trait RelatedPlusTrait
     /**
      * Switch a query to be a subquery of a model
      *
-     * @param Builder $query
+     * @param Builder|RelatedPlus $query
      * @param Builder $model
      * @return Builder
      */
@@ -452,7 +452,7 @@ trait RelatedPlusTrait
     /**
      * If the relation is one-to-many, just get the first related record
      *
-     * @param Builder $query
+     * @param Builder|RelatedPlus $query
      * @param string $column
      * @param HasMany|Relation $relation
      * @param string $table
@@ -501,7 +501,7 @@ trait RelatedPlusTrait
     /**
      * Adds a where for a relation's join columns and and min/max for a given column
      *
-     * @param Builder $query
+     * @param Builder|RelatedPlus $query
      * @param Relation $relation
      * @param string $column
      * @param string $direction
@@ -520,7 +520,7 @@ trait RelatedPlusTrait
     /**
      * Adds a select for a min or max on the given column, depending on direction given
      *
-     * @param Builder $query
+     * @param Builder|RelatedPlus $query
      * @param string $column
      * @param string $direction
      * @return Builder
@@ -553,7 +553,7 @@ trait RelatedPlusTrait
     /**
      * Add where statements for the model search fields
      *
-     * @param Builder $query
+     * @param Builder|RelatedPlus $query
      * @param string $search
      * @return Builder
      */
