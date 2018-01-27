@@ -440,12 +440,12 @@ trait RelatedPlusTrait
                 ->joinOne($relation, $column, $direction);
 
             // Add any where statements with the relationship
-            $sub_query = $this->addWhereConstraints($relation, $sub_query, $table);
+            $subQuery = $this->addWhereConstraints($relation, $subQuery, $table);
 
             // Add any order statements with the relationship
-            $sub_query = $this->addOrder($relation, $sub_query, $table);
+            $subQuery = $this->addOrder($relation, $subQuery, $table);
 
-            return $sub_query;
+            return $subQuery;
         });
     }
 
@@ -496,6 +496,8 @@ trait RelatedPlusTrait
         }
 
         return $builder;
+    }
+
     /**
      * Adds a where for a relation's join columns and and min/max for a given column
      *
@@ -607,6 +609,7 @@ trait RelatedPlusTrait
                             }
                         }
                     }
+
                     return $query;
                 });
             }
