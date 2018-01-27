@@ -456,6 +456,9 @@ trait RelatedPlusTrait
             // Add any where statements with the relationship
             $sub_query = $this->addWhereConstraints($relation, $sub_query, $table);
 
+            // Add any order statements with the relationship
+            $sub_query = $this->addOrder($relation, $sub_query, $table);
+
             return $sub_query;
         });
     }
@@ -485,6 +488,25 @@ trait RelatedPlusTrait
 
         if (!empty($wheres)) {
             $builder->where($wheres);
+        }
+
+        return $builder;
+    }
+
+    /**
+     * Add orderBy if orders exist for a relation
+     *
+     * @param Relation|BelongsTo|HasOneOrMany $relation
+     * @param Builder|JoinClause $builder
+     * @param string $table
+     * @return Builder
+     */
+    protected function addOrder($relation, $builder, $table)
+    {
+        // Get where clauses from the relationship
+        foreach ($relation->toBase()->orders as $order) {
+            $builder->orderBy((preg_match('/(' . $table . '\.|`' . $table . '`)/i',
+                    $order['column']) > 0 ? '' : $table . '.') . $order['column'], $order['direction']);
         }
 
         return $builder;
