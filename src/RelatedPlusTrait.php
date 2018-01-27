@@ -244,6 +244,36 @@ trait RelatedPlusTrait
     }
 
     /**
+     * Add wheres if they exist for a relation
+     *
+     * @param Relation|BelongsTo|HasOneOrMany $relation
+     * @param Builder|JoinClause $builder
+     * @param string $table
+     * @return Builder
+     */
+    protected function addWhereConstraints($relation, $builder, $table)
+    {
+        // Get where clauses from the relationship
+        $wheres = collect($relation->toBase()->wheres)
+            ->where('type', 'Basic')
+            ->map(function ($where) use ($table) {
+                // Add table name to column if it is absent
+                return [
+                    (preg_match('/(' . $table . '\.|`' . $table . '`)/i',
+                        $where['column']) > 0 ? '' : $table . '.') . $where['column'],
+                    $where['operator'],
+                    $where['value']
+                ];
+            })->toArray();
+
+        if (!empty($wheres)) {
+            $builder->where($wheres);
+        }
+
+        return $builder;
+    }
+
+    /**
      * Set the order of a model
      *
      * @param Builder|RelatedPlus $query
@@ -447,36 +477,6 @@ trait RelatedPlusTrait
 
             return $subQuery;
         });
-    }
-
-    /**
-     * Add wheres if they exist for a relation
-     *
-     * @param Relation|BelongsTo|HasOneOrMany $relation
-     * @param Builder|JoinClause $builder
-     * @param string $table
-     * @return Builder
-     */
-    protected function addWhereConstraints($relation, $builder, $table)
-    {
-        // Get where clauses from the relationship
-        $wheres = collect($relation->toBase()->wheres)
-            ->where('type', 'Basic')
-            ->map(function ($where) use ($table) {
-                // Add table name to column if it is absent
-                return [
-                    (preg_match('/(' . $table . '\.|`' . $table . '`)/i',
-                        $where['column']) > 0 ? '' : $table . '.') . $where['column'],
-                    $where['operator'],
-                    $where['value']
-                ];
-            })->toArray();
-
-        if (!empty($wheres)) {
-            $builder->where($wheres);
-        }
-
-        return $builder;
     }
 
     /**
