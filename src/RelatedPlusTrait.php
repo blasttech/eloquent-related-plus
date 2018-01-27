@@ -74,52 +74,6 @@ trait RelatedPlusTrait
     }
 
     /**
-     * Check if this model has already been joined to a table or relation
-     *
-     * @param Builder $Builder
-     * @param string $table
-     * @param \Illuminate\Database\Eloquent\Relations\Relation $relation
-     * @return bool
-     */
-    protected function hasJoin(Builder $Builder, $table, $relation)
-    {
-        $joins = $Builder->getQuery()->joins;
-        if (!is_null($joins)) {
-            foreach ($joins as $JoinClause) {
-                if ($JoinClause->table == $table) {
-                    return true;
-                }
-            }
-        }
-
-        $eager_loads = $Builder->getEagerLoads();
-
-        return !is_null($eager_loads) && in_array($relation, $eager_loads);
-    }
-
-    /**
-     * Return the sql for a query with the bindings replaced with the binding values
-     *
-     * @param Builder $builder
-     * @return string
-     */
-    public function sqlWithBindings(Builder $builder)
-    {
-        return vsprintf($this->replacePlaceholders($builder), array_map('addslashes', $builder->getBindings()));
-    }
-
-    /**
-     * Replace SQL placeholders with '%s'
-     *
-     * @param Builder $builder
-     * @return mixed
-     */
-    private function replacePlaceholders(Builder $builder)
-    {
-        return str_replace(['?'], ['\'%s\''], $builder->toSql());
-    }
-
-    /**
      * This determines the foreign key relations automatically to prevent the need to figure out the columns.
      *
      * @param Builder|RelatedPlus $query
@@ -251,6 +205,28 @@ trait RelatedPlusTrait
     }
 
     /**
+     * Return the sql for a query with the bindings replaced with the binding values
+     *
+     * @param Builder $builder
+     * @return string
+     */
+    public function sqlWithBindings(Builder $builder)
+    {
+        return vsprintf($this->replacePlaceholders($builder), array_map('addslashes', $builder->getBindings()));
+    }
+
+    /**
+     * Replace SQL placeholders with '%s'
+     *
+     * @param Builder $builder
+     * @return mixed
+     */
+    private function replacePlaceholders(Builder $builder)
+    {
+        return str_replace(['?'], ['\'%s\''], $builder->toSql());
+    }
+
+    /**
      * Get the join columns for a relation
      *
      * @param Relation|BelongsTo|HasOneOrMany $relation
@@ -338,6 +314,30 @@ trait RelatedPlusTrait
         }
 
         return $query;
+    }
+
+    /**
+     * Check if this model has already been joined to a table or relation
+     *
+     * @param Builder $Builder
+     * @param string $table
+     * @param \Illuminate\Database\Eloquent\Relations\Relation $relation
+     * @return bool
+     */
+    protected function hasJoin(Builder $Builder, $table, $relation)
+    {
+        $joins = $Builder->getQuery()->joins;
+        if (!is_null($joins)) {
+            foreach ($joins as $JoinClause) {
+                if ($JoinClause->table == $table) {
+                    return true;
+                }
+            }
+        }
+
+        $eager_loads = $Builder->getEagerLoads();
+
+        return !is_null($eager_loads) && in_array($relation, $eager_loads);
     }
 
     /**
