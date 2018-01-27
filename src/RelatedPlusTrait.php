@@ -511,6 +511,27 @@ trait RelatedPlusTrait
 
         return $builder;
     /**
+     * Adds a select for a min or max on the given column, depending on direction given
+     *
+     * @param Builder $query
+     * @param string $column
+     * @param string $direction
+     * @return Builder
+     */
+    public function scopeMinMax(Builder $query, $column, $direction)
+    {
+        $column = $this->addBackticks($column);
+
+        if ($direction == 'asc') {
+            $query->select(DB::raw('MIN(' . $column . ')'));
+        } else {
+            $query->select(DB::raw('MAX(' . $column . ')'));
+        }
+
+        return $query;
+    }
+
+    /**
      * Add backticks to a table/column
      *
      * @param $column
