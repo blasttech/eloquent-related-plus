@@ -36,7 +36,14 @@ interface RelatedPlus
      * @param bool $related_select
      * @return Builder
      */
-    public function scopeModelJoin(Builder $query, $relation_name, $operator = '=', $type = 'left', $where = false, $related_select = true);
+    public function scopeModelJoin(
+        Builder $query,
+        $relation_name,
+        $operator = '=',
+        $type = 'left',
+        $where = false,
+        $related_select = true
+    );
 
     /**
      * Join a model
