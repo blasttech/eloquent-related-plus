@@ -169,9 +169,6 @@ trait RelatedPlusTrait
             $relation,
             $operator
         ) {
-            // Get relation join columns
-            $joinColumns = $this->getJoinColumns($relation);
-
             // If a HasOne relation and ordered - ie join to the latest/earliest
             if (class_basename($relation) === 'HasOne' && !empty($relation->toBase()->orders)) {
                 // Get first relation order (should only be one)
@@ -181,14 +178,14 @@ trait RelatedPlusTrait
                 $subQuery = $relation
                     ->getRelated()
                     ->newQuery()
-                    ->whereColumn($joinColumns->first, $joinColumns->second)
-                    ->setBindings($relation->getBindings())
-                    ->select($order['column'])
-                    ->orderBy($order['column'], $order['direction'])
-                    ->limit(1);
+                    ->joinOne($relation, $order['column'], $order['direction'])
+                    ->setBindings($relation->getBindings());
 
                 return $join->on($order['column'], DB::raw('(' . $this->sqlWithBindings($subQuery) . ')'));
             } else {
+                // Get relation join columns
+                $joinColumns = $this->getJoinColumns($relation);
+
                 $first = $joinColumns->first;
                 $second = $joinColumns->second;
                 if ($table_name !== $table_alias) {
@@ -437,21 +434,10 @@ trait RelatedPlusTrait
     {
         return $query->where($column, function ($sub_query) use ($table, $direction, $relation, $column) {
 
-            // Get join fields
-            $joinColumns = $this->getJoinColumns($relation);
-
             /** @var Builder $sub_query */
             $sub_query
                 ->from($table)
-                ->whereColumn($joinColumns->first, '=', $joinColumns->second)
-                ->selectRaw(
-                    ($direction == 'asc' ? 'MIN' : 'MAX') . '(' . // MIN if ascending, MAX if descending
-                    (
-                        preg_match('/^[0-9a-zA-Z\.]*$/', $column)
-                            ? '`' . str_replace(['`', '.'], ['', '`.`'], $column) . '`'
-                            : $column
-                    ) . ')'
-                );
+                ->joinOne($relation, $column, $direction);
 
             // Add any where statements with the relationship
             $sub_query = $this->addWhereConstraints($relation, $sub_query, $table);
