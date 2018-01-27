@@ -511,6 +511,25 @@ trait RelatedPlusTrait
 
         return $builder;
     /**
+     * Adds a where for a relation's join columns and and min/max for a given column
+     *
+     * @param Builder $query
+     * @param Relation $relation
+     * @param string $column
+     * @param string $direction
+     * @return mixed
+     */
+    public function scopeJoinOne(Builder $query, $relation, $column, $direction)
+    {
+        // Get join fields
+        $joinColumns = $this->getJoinColumns($relation);
+
+        return $query
+            ->whereColumn($joinColumns->first, '=', $joinColumns->second)
+            ->minMax($column, $direction);
+    }
+
+    /**
      * Adds a select for a min or max on the given column, depending on direction given
      *
      * @param Builder $query
