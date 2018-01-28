@@ -356,7 +356,7 @@ trait RelatedPlusTrait
 
         return $query
             ->whereColumn($joinColumns->first, '=', $joinColumns->second)
-            ->minMax($column, $direction);
+            ->selectMinMax($column, $direction);
     }
 
     /**
@@ -367,7 +367,7 @@ trait RelatedPlusTrait
      * @param string $direction
      * @return Builder
      */
-    public function scopeMinMax(Builder $query, $column, $direction)
+    public function scopeSelectMinMax(Builder $query, $column, $direction)
     {
         $column = $this->addBackticks($column);
 
