@@ -11,12 +11,6 @@ use Illuminate\Database\Eloquent\Builder;
  */
 interface RelatedPlus
 {
-    public function setNullable(array $nullable);
-
-    public function setOrderFields(array $order_fields);
-
-    public function setOrderDefaults(array $order_defaults);
-
     /**
      * Return the sql for a query with the bindings replaced with the binding values
      *

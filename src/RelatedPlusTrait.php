@@ -44,36 +44,6 @@ trait RelatedPlusTrait
     }
 
     /**
-     * Set nullable
-     *
-     * @param array $nullable
-     */
-    public function setNullable(array $nullable)
-    {
-        $this->nullable = $nullable;
-    }
-
-    /**
-     * Set order_fields
-     *
-     * @param array $order_fields
-     */
-    public function setOrderFields(array $order_fields)
-    {
-        $this->order_fields = $order_fields;
-    }
-
-    /**
-     * Set order_defaults
-     *
-     * @param array $order_defaults
-     */
-    public function setOrderDefaults(array $order_defaults)
-    {
-        $this->order_defaults = $order_defaults;
-    }
-
-    /**
      * This determines the foreign key relations automatically to prevent the need to figure out the columns.
      *
      * @param Builder|RelatedPlus $query
