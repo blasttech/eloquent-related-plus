@@ -323,10 +323,10 @@ trait RelatedPlusTrait
      */
     public function scopeHasManyJoin(Builder $query, $column, $relation, $table, $direction)
     {
-        return $query->where($column, function ($sub_query) use ($table, $direction, $relation, $column) {
+        return $query->where($column, function ($subQuery) use ($table, $direction, $relation, $column) {
 
             /** @var Builder $sub_query */
-            $sub_query
+            $subQuery
                 ->from($table)
                 ->joinOne($relation, $column, $direction);
 
