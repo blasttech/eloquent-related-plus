@@ -12,14 +12,6 @@ use Illuminate\Database\Eloquent\Builder;
 interface RelatedPlus
 {
     /**
-     * Return the sql for a query with the bindings replaced with the binding values
-     *
-     * @param Builder $builder
-     * @return string
-     */
-    public function sqlWithBindings(Builder $builder);
-
-    /**
      * This determines the foreign key relations automatically to prevent the need to figure out the columns.
      *
      * @param Builder $query

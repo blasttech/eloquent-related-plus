@@ -127,7 +127,7 @@ trait RelatedPlusTrait
                     ->joinOne($relation, $order['column'], $order['direction'])
                     ->setBindings($relation->getBindings());
 
-                return $join->on($order['column'], DB::raw('(' . $this->sqlWithBindings($subQuery) . ')'));
+                return $join->on($order['column'], DB::raw('(' . $this->toSqlWithBindings($subQuery) . ')'));
             } else {
                 // Get relation join columns
                 $joinColumns = $this->getJoinColumns($relation);
@@ -153,7 +153,7 @@ trait RelatedPlusTrait
      * @param Builder $builder
      * @return string
      */
-    public function sqlWithBindings(Builder $builder)
+    private function toSqlWithBindings(Builder $builder)
     {
         return vsprintf($this->replacePlaceholders($builder), array_map('addslashes', $builder->getBindings()));
     }
@@ -270,7 +270,7 @@ trait RelatedPlusTrait
      */
     public function scopeSetSubquery(Builder $query, $model)
     {
-        $sql = $this->sqlWithBindings($model);
+        $sql = $this->toSqlWithBindings($model);
         $table = $model->getQuery()->from;
 
         return $query
