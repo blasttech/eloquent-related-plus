@@ -525,14 +525,14 @@ trait RelatedPlusTrait
     /**
      * Check if this model has already been joined to a table or relation
      *
-     * @param Builder $Builder
+     * @param Builder $builder
      * @param string $table
      * @param \Illuminate\Database\Eloquent\Relations\Relation $relation
      * @return bool
      */
-    protected function hasJoin(Builder $Builder, $table, $relation)
+    protected function hasJoin(Builder $builder, $table, $relation)
     {
-        $joins = $Builder->getQuery()->joins;
+        $joins = $builder->getQuery()->joins;
         if (!is_null($joins)) {
             foreach ($joins as $JoinClause) {
                 if ($JoinClause->table == $table) {
@@ -541,7 +541,7 @@ trait RelatedPlusTrait
             }
         }
 
-        $eager_loads = $Builder->getEagerLoads();
+        $eager_loads = $builder->getEagerLoads();
 
         return !is_null($eager_loads) && in_array($relation, $eager_loads);
     }
