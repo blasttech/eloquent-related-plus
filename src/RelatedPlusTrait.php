@@ -214,6 +214,18 @@ trait RelatedPlusTrait
     }
 
     /**
+     * Add table name to column name if table name not already included in column name
+     *
+     * @param string $table
+     * @param string $column
+     * @return string
+     */
+    private function columnWithTableName($table, $column)
+    {
+        return (preg_match('/(' . $table . '\.|`' . $table . '`)/i', $column) > 0 ? '' : $table . '.') . $column;
+    }
+
+    /**
      * Set the order of a model
      *
      * @param Builder|RelatedPlus $query
