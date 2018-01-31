@@ -174,7 +174,7 @@ trait RelatedPlusTrait
                 $join->on($first, $operator, $second);
 
                 // Add any where clauses from the relationship
-                return $this->addWhereConstraints($relation, $join, $table_alias);
+                return $this->addWhereConstraints($join, $relation, $table_alias);
             }
         }, null, null, $type, $where);
     }
@@ -236,12 +236,12 @@ trait RelatedPlusTrait
     /**
      * Add wheres if they exist for a relation
      *
-     * @param Relation|BelongsTo|HasOneOrMany $relation
      * @param Builder|JoinClause $builder
+     * @param Relation|BelongsTo|HasOneOrMany $relation
      * @param string $table
      * @return Builder
      */
-    protected function addWhereConstraints($relation, $builder, $table)
+    protected function addWhereConstraints($builder, $relation, $table)
     {
         // Get where clauses from the relationship
         $wheres = collect($relation->toBase()->wheres)
@@ -466,11 +466,11 @@ trait RelatedPlusTrait
                 ->from($table)
                 ->joinOne($relation, $column, $direction);
 
-            // Add any where statements with the relationship
-            $subQuery = $this->addWhereConstraints($relation, $subQuery, $table);
+                // Add any where statements with the relationship
+                $subQuery = $this->addWhereConstraints($subQuery, $relation, $table);
 
-            // Add any order statements with the relationship
-            $subQuery = $this->addOrder($relation, $subQuery, $table);
+                // Add any order statements with the relationship
+                $subQuery = $this->addOrder($subQuery, $relation, $table);
 
             return $subQuery;
         });
@@ -479,12 +479,12 @@ trait RelatedPlusTrait
     /**
      * Add orderBy if orders exist for a relation
      *
-     * @param Relation|BelongsTo|HasOneOrMany $relation
      * @param Builder|JoinClause $builder
+     * @param Relation|BelongsTo|HasOneOrMany $relation
      * @param string $table
      * @return Builder
      */
-    protected function addOrder($relation, $builder, $table)
+    protected function addOrder($builder, $relation, $table)
     {
         if (!empty($relation->toBase()->orders)) {
             // Get where clauses from the relationship
