@@ -199,6 +199,11 @@ trait RelatedPlusTrait
     private function replacePlaceholders(Builder $builder)
     {
         return str_replace(['?'], ['\'%s\''], $builder->toSql());
+        return $this->selectMinMax(
+            $query->whereColumn($joinColumns->first, '=', $joinColumns->second),
+            $column,
+            $direction
+        );
     }
 
     /**
@@ -219,6 +224,25 @@ trait RelatedPlusTrait
         }
 
         return (object)['first' => $first, 'second' => $second];
+    }
+
+    /**
+     * Adds a select for a min or max on the given column, depending on direction given
+     *
+     * @param Builder|RelatedPlus $query
+     * @param string $column
+     * @param string $direction
+     * @return Builder
+     */
+    public function selectMinMax($query, $column, $direction)
+    {
+        $column = $this->addBackticks($column);
+
+        if ($direction == 'asc') {
+            return $query->select(DB::raw('MIN(' . $column . ')'));
+        } else {
+            return $query->select(DB::raw('MAX(' . $column . ')'));
+        }
     }
 
     /**
@@ -510,30 +534,6 @@ trait RelatedPlusTrait
         // Get join fields
         $joinColumns = $this->getJoinColumns($relation);
 
-        return $query
-            ->whereColumn($joinColumns->first, '=', $joinColumns->second)
-            ->selectMinMax($column, $direction);
-    }
-
-    /**
-     * Adds a select for a min or max on the given column, depending on direction given
-     *
-     * @param Builder|RelatedPlus $query
-     * @param string $column
-     * @param string $direction
-     * @return Builder
-     */
-    public function scopeSelectMinMax(Builder $query, $column, $direction)
-    {
-        $column = $this->addBackticks($column);
-
-        if ($direction == 'asc') {
-            $query->select(DB::raw('MIN(' . $column . ')'));
-        } else {
-            $query->select(DB::raw('MAX(' . $column . ')'));
-        }
-
-        return $query;
     }
 
     /**
