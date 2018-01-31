@@ -214,6 +214,31 @@ trait RelatedPlusTrait
     }
 
     /**
+     * Add wheres if they exist for a relation
+     *
+     * @param Relation|BelongsTo|HasOneOrMany $relation
+     * @param Builder|JoinClause $builder
+     * @param string $table
+     * @return Builder
+     */
+    protected function addWhereConstraints($relation, $builder, $table)
+    {
+        // Get where clauses from the relationship
+        $wheres = collect($relation->toBase()->wheres)
+            ->where('type', 'Basic')
+            ->map(function ($where) use ($table) {
+                // Add table name to column if it is absent
+                return [$this->columnWithTableName($table, $where['column']), $where['operator'], $where['value']];
+            })->toArray();
+
+        if (!empty($wheres)) {
+            $builder->where($wheres);
+        }
+
+        return $builder;
+    }
+
+    /**
      * Add table name to column name if table name not already included in column name
      *
      * @param string $table
@@ -431,6 +456,24 @@ trait RelatedPlusTrait
     }
 
     /**
+     * Add orderBy if orders exist for a relation
+     *
+     * @param Relation|BelongsTo|HasOneOrMany $relation
+     * @param Builder|JoinClause $builder
+     * @param string $table
+     * @return Builder
+     */
+    protected function addOrder($relation, $builder, $table)
+    {
+        // Get where clauses from the relationship
+        foreach ($relation->toBase()->orders as $order) {
+            $builder->orderBy($this->columnWithTableName($table, $order['column']), $order['direction']);
+        }
+
+        return $builder;
+    }
+
+    /**
      * Adds a where for a relation's join columns and and min/max for a given column
      *
      * @param Builder|RelatedPlus $query
@@ -548,54 +591,5 @@ trait RelatedPlusTrait
         }
 
         return $query;
-    }
-
-    /**
-     * Add wheres if they exist for a relation
-     *
-     * @param Relation|BelongsTo|HasOneOrMany $relation
-     * @param Builder|JoinClause $builder
-     * @param string $table
-     * @return Builder
-     */
-    protected function addWhereConstraints($relation, $builder, $table)
-    {
-        // Get where clauses from the relationship
-        $wheres = collect($relation->toBase()->wheres)
-            ->where('type', 'Basic')
-            ->map(function ($where) use ($table) {
-                // Add table name to column if it is absent
-                return [
-                    (preg_match('/(' . $table . '\.|`' . $table . '`)/i',
-                        $where['column']) > 0 ? '' : $table . '.') . $where['column'],
-                    $where['operator'],
-                    $where['value']
-                ];
-            })->toArray();
-
-        if (!empty($wheres)) {
-            $builder->where($wheres);
-        }
-
-        return $builder;
-    }
-
-    /**
-     * Add orderBy if orders exist for a relation
-     *
-     * @param Relation|BelongsTo|HasOneOrMany $relation
-     * @param Builder|JoinClause $builder
-     * @param string $table
-     * @return Builder
-     */
-    protected function addOrder($relation, $builder, $table)
-    {
-        // Get where clauses from the relationship
-        foreach ($relation->toBase()->orders as $order) {
-            $builder->orderBy((preg_match('/(' . $table . '\.|`' . $table . '`)/i',
-                    $order['column']) > 0 ? '' : $table . '.') . $order['column'], $order['direction']);
-        }
-
-        return $builder;
     }
 }
