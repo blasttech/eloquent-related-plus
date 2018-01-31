@@ -90,6 +90,30 @@ trait RelatedPlusTrait
     }
 
     /**
+     * Get the relations from a relation name
+     *
+     * @param $relation_name
+     * @return Relation[]
+     */
+    protected function parseRelationNames($relation_name)
+    {
+        $relation_names = explode('.', $relation_name);
+        $parent_relation_name = null;
+        $relations = [];
+
+        foreach ($relation_names as $relation_name) {
+            if (is_null($parent_relation_name)) {
+                $relations[] = $this->$relation_name();
+                $parent_relation_name = $this->$relation_name()->getRelated();
+            } else {
+                $relations[] = $parent_relation_name->$relation_name();
+            }
+        }
+
+        return $relations;
+    }
+
+    /**
      * Join a model
      *
      * @param Builder|RelatedPlus $query
@@ -156,6 +180,37 @@ trait RelatedPlusTrait
     private function toSqlWithBindings(Builder $builder)
     {
         return vsprintf($this->replacePlaceholders($builder), array_map('addslashes', $builder->getBindings()));
+    }
+
+    /**
+     * Replace SQL placeholders with '%s'
+     *
+     * @param Builder $builder
+     * @return mixed
+     */
+    private function replacePlaceholders(Builder $builder)
+    {
+        return str_replace(['?'], ['\'%s\''], $builder->toSql());
+    }
+
+    /**
+     * Get the join columns for a relation
+     *
+     * @param Relation|BelongsTo|HasOneOrMany $relation
+     * @return \stdClass
+     */
+    protected function getJoinColumns($relation)
+    {
+        // Get keys with table names
+        if ($relation instanceof BelongsTo) {
+            $first = $relation->getOwnerKey();
+            $second = $relation->getForeignKey();
+        } else {
+            $first = $relation->getQualifiedParentKeyName();
+            $second = $relation->getQualifiedForeignKeyName();
+        }
+
+        return (object)['first' => $first, 'second' => $second];
     }
 
     /**
@@ -229,6 +284,29 @@ trait RelatedPlusTrait
     }
 
     /**
+     * Check if this model has already been joined to a table or relation
+     *
+     * @param Builder $builder
+     * @param string $table
+     * @param \Illuminate\Database\Eloquent\Relations\Relation $relation
+     * @return bool
+     */
+    protected function hasJoin(Builder $builder, $table, $relation)
+    {
+        $joins = $builder->getQuery()->joins;
+        if (!is_null($joins)) {
+            foreach ($joins as $JoinClause) {
+                if ($JoinClause->table == $table) {
+                    return true;
+                }
+            }
+        }
+
+        $eager_loads = $builder->getEagerLoads();
+
+        return !is_null($eager_loads) && in_array($relation, $eager_loads);
+    }
+
      * Set the model order
      *
      * @param Builder|RelatedPlus $query
@@ -381,6 +459,18 @@ trait RelatedPlusTrait
     }
 
     /**
+     * Add backticks to a table/column
+     *
+     * @param $column
+     * @return string
+     */
+    private function addBackticks($column)
+    {
+        return preg_match('/^[0-9a-zA-Z\.]*$/', $column) ? '`' . str_replace(['`', '.'], ['', '`.`'],
+                $column) . '`' : $column;
+    }
+
+    /**
      * Add where statements for the model search fields
      *
      * @param Builder|RelatedPlus $query
@@ -449,50 +539,6 @@ trait RelatedPlusTrait
     }
 
     /**
-     * Get the relations from a relation name
-     *
-     * @param $relation_name
-     * @return Relation[]
-     */
-    protected function parseRelationNames($relation_name)
-    {
-        $relation_names = explode('.', $relation_name);
-        $parent_relation_name = null;
-        $relations = [];
-
-        foreach ($relation_names as $relation_name) {
-            if (is_null($parent_relation_name)) {
-                $relations[] = $this->$relation_name();
-                $parent_relation_name = $this->$relation_name()->getRelated();
-            } else {
-                $relations[] = $parent_relation_name->$relation_name();
-            }
-        }
-
-        return $relations;
-    }
-
-    /**
-     * Get the join columns for a relation
-     *
-     * @param Relation|BelongsTo|HasOneOrMany $relation
-     * @return \stdClass
-     */
-    protected function getJoinColumns($relation)
-    {
-        // Get keys with table names
-        if ($relation instanceof BelongsTo) {
-            $first = $relation->getOwnerKey();
-            $second = $relation->getForeignKey();
-        } else {
-            $first = $relation->getQualifiedParentKeyName();
-            $second = $relation->getQualifiedForeignKeyName();
-        }
-
-        return (object)['first' => $first, 'second' => $second];
-    }
-
-    /**
      * Add wheres if they exist for a relation
      *
      * @param Relation|BelongsTo|HasOneOrMany $relation
@@ -523,30 +569,6 @@ trait RelatedPlusTrait
     }
 
     /**
-     * Check if this model has already been joined to a table or relation
-     *
-     * @param Builder $builder
-     * @param string $table
-     * @param \Illuminate\Database\Eloquent\Relations\Relation $relation
-     * @return bool
-     */
-    protected function hasJoin(Builder $builder, $table, $relation)
-    {
-        $joins = $builder->getQuery()->joins;
-        if (!is_null($joins)) {
-            foreach ($joins as $JoinClause) {
-                if ($JoinClause->table == $table) {
-                    return true;
-                }
-            }
-        }
-
-        $eager_loads = $builder->getEagerLoads();
-
-        return !is_null($eager_loads) && in_array($relation, $eager_loads);
-    }
-
-    /**
      * Add orderBy if orders exist for a relation
      *
      * @param Relation|BelongsTo|HasOneOrMany $relation
@@ -563,28 +585,5 @@ trait RelatedPlusTrait
         }
 
         return $builder;
-    }
-
-    /**
-     * Replace SQL placeholders with '%s'
-     *
-     * @param Builder $builder
-     * @return mixed
-     */
-    private function replacePlaceholders(Builder $builder)
-    {
-        return str_replace(['?'], ['\'%s\''], $builder->toSql());
-    }
-
-    /**
-     * Add backticks to a table/column
-     *
-     * @param $column
-     * @return string
-     */
-    private function addBackticks($column)
-    {
-        return preg_match('/^[0-9a-zA-Z\.]*$/', $column) ? '`' . str_replace(['`', '.'], ['', '`.`'],
-                $column) . '`' : $column;
     }
 }
