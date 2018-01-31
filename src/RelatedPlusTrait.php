@@ -474,9 +474,11 @@ trait RelatedPlusTrait
      */
     protected function addOrder($relation, $builder, $table)
     {
-        // Get where clauses from the relationship
-        foreach ($relation->toBase()->orders as $order) {
-            $builder->orderBy($this->columnWithTableName($table, $order['column']), $order['direction']);
+        if (!empty($relation->toBase()->orders)) {
+            // Get where clauses from the relationship
+            foreach ($relation->toBase()->orders as $order) {
+                $builder->orderBy($this->columnWithTableName($table, $order['column']), $order['direction']);
+            }
         }
 
         return $builder;
