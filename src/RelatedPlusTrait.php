@@ -195,10 +195,19 @@ trait RelatedPlusTrait
     }
 
     /**
+     * Adds a where for a relation's join columns and and min/max for a given column
      *
+     * @param Builder|RelatedPlus $query
+     * @param Relation $relation
+     * @param string $column
+     * @param string $direction
      * @return mixed
      */
+    public function joinOne($query, $relation, $column, $direction)
     {
+        // Get join fields
+        $joinColumns = $this->getJoinColumns($relation);
+
         return $this->selectMinMax(
             $query->whereColumn($joinColumns->first, '=', $joinColumns->second),
             $column,
@@ -505,12 +514,15 @@ trait RelatedPlusTrait
      */
     public function scopeHasManyJoin(Builder $query, $column, $relation, $table, $direction)
     {
-        return $query->where($column, function ($subQuery) use ($table, $direction, $relation, $column) {
-
-            /** @var Builder $subQuery */
-            $subQuery
-                ->from($table)
-                ->joinOne($relation, $column, $direction);
+        return $query->where(
+            $column,
+            function ($subQuery) use ($table, $direction, $relation, $column, $query) {
+                $subQuery = $this->joinOne(
+                    $subQuery->from($table),
+                    $relation,
+                    $column,
+                    $direction
+                );
 
                 // Add any where statements with the relationship
                 $subQuery = $this->addWhereConstraints($subQuery, $relation, $table);
@@ -518,8 +530,9 @@ trait RelatedPlusTrait
                 // Add any order statements with the relationship
                 $subQuery = $this->addOrder($subQuery, $relation, $table);
 
-            return $subQuery;
-        });
+                return $subQuery;
+            }
+        );
     }
 
     /**
@@ -540,22 +553,6 @@ trait RelatedPlusTrait
         }
 
         return $builder;
-    }
-
-    /**
-     * Adds a where for a relation's join columns and and min/max for a given column
-     *
-     * @param Builder|RelatedPlus $query
-     * @param Relation $relation
-     * @param string $column
-     * @param string $direction
-     * @return mixed
-     */
-    public function scopeJoinOne(Builder $query, $relation, $column, $direction)
-    {
-        // Get join fields
-        $joinColumns = $this->getJoinColumns($relation);
-
     }
 
     /**
