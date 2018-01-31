@@ -173,19 +173,14 @@ trait RelatedPlusTrait
     }
 
     /**
-     * Return the sql for a query with the bindings replaced with the binding values
      * Get join sql for a HasOne relation
      *
-     * @param Builder $builder
-     * @return string
      * @param Relation $relation
      * @param array $order
      * @return Expression
      */
-    private function toSqlWithBindings(Builder $builder)
     public function hasOneJoinSql($relation, $order)
     {
-        return vsprintf($this->replacePlaceholders($builder), array_map('addslashes', $builder->getBindings()));
         // Build subquery for getting first/last record in related table
         $subQuery = $this
             ->joinOne(
@@ -260,6 +255,17 @@ trait RelatedPlusTrait
     {
         return preg_match('/^[0-9a-zA-Z\.]*$/', $column) ?
             '`' . str_replace(['`', '.'], ['', '`.`'], $column) . '`' : $column;
+    }
+
+    /**
+     * Return the sql for a query with the bindings replaced with the binding values
+     *
+     * @param Builder $builder
+     * @return string
+     */
+    private function toSqlWithBindings(Builder $builder)
+    {
+        return vsprintf($this->replacePlaceholders($builder), array_map('addslashes', $builder->getBindings()));
     }
 
     /**
