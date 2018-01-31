@@ -152,14 +152,7 @@ trait RelatedPlusTrait
                 // Get first relation order (should only be one)
                 $order = $relation->toBase()->orders[0];
 
-                // Build subquery for getting first/last record in related table
-                $subQuery = $relation
-                    ->getRelated()
-                    ->newQuery()
-                    ->joinOne($relation, $order['column'], $order['direction'])
-                    ->setBindings($relation->getBindings());
-
-                return $join->on($order['column'], DB::raw('(' . $this->toSqlWithBindings($subQuery) . ')'));
+                return $join->on($order['column'], $this->hasOneJoinSql($relation, $order));
             } else {
                 // Get relation join columns
                 $joinColumns = $this->getJoinColumns($relation);
@@ -181,13 +174,29 @@ trait RelatedPlusTrait
 
     /**
      * Return the sql for a query with the bindings replaced with the binding values
+     * Get join sql for a HasOne relation
      *
      * @param Builder $builder
      * @return string
+     * @param Relation $relation
+     * @param array $order
+     * @return Expression
      */
     private function toSqlWithBindings(Builder $builder)
+    public function hasOneJoinSql($relation, $order)
     {
         return vsprintf($this->replacePlaceholders($builder), array_map('addslashes', $builder->getBindings()));
+        // Build subquery for getting first/last record in related table
+        $subQuery = $this
+            ->joinOne(
+                $relation->getRelated()->newQuery(),
+                $relation,
+                $order['column'],
+                $order['direction']
+            )
+            ->setBindings($relation->getBindings());
+
+        return DB::raw('(' . $this->toSqlWithBindings($subQuery) . ')');
     }
 
     /**
