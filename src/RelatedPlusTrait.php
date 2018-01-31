@@ -344,6 +344,7 @@ trait RelatedPlusTrait
         return !is_null($eager_loads) && in_array($relation, $eager_loads);
     }
 
+    /**
      * Set the model order
      *
      * @param Builder|RelatedPlus $query
@@ -440,7 +441,7 @@ trait RelatedPlusTrait
     {
         return $query->where($column, function ($subQuery) use ($table, $direction, $relation, $column) {
 
-            /** @var Builder $sub_query */
+            /** @var Builder $subQuery */
             $subQuery
                 ->from($table)
                 ->joinOne($relation, $column, $direction);
