@@ -200,14 +200,10 @@ trait RelatedPlusTrait
     }
 
     /**
-     * Replace SQL placeholders with '%s'
      *
-     * @param Builder $builder
      * @return mixed
      */
-    private function replacePlaceholders(Builder $builder)
     {
-        return str_replace(['?'], ['\'%s\''], $builder->toSql());
         return $this->selectMinMax(
             $query->whereColumn($joinColumns->first, '=', $joinColumns->second),
             $column,
@@ -264,6 +260,17 @@ trait RelatedPlusTrait
     {
         return preg_match('/^[0-9a-zA-Z\.]*$/', $column) ?
             '`' . str_replace(['`', '.'], ['', '`.`'], $column) . '`' : $column;
+    }
+
+    /**
+     * Replace SQL placeholders with '%s'
+     *
+     * @param Builder $builder
+     * @return mixed
+     */
+    private function replacePlaceholders(Builder $builder)
+    {
+        return str_replace(['?'], ['\'%s\''], $builder->toSql());
     }
 
     /**
