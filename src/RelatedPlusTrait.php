@@ -44,7 +44,11 @@ trait RelatedPlusTrait
     }
 
     /**
+     * Add joins for one or more relations
      * This determines the foreign key relations automatically to prevent the need to figure out the columns.
+     * Usages:
+     * $query->modelJoin('customers')
+     * $query->modelJoin('customer.client')
      *
      * @param Builder|RelatedPlus $query
      * @param string $relation_name
@@ -91,6 +95,10 @@ trait RelatedPlusTrait
 
     /**
      * Get the relations from a relation name
+     * $relation_name can be a single relation
+     * Usage for User model:
+     * parseRelationNames('customer') returns [$user->customer()]
+     * parseRelationNames('customer.contact') returns [$user->customer(), $user->customer->contact()]
      *
      * @param $relation_name
      * @return Relation[]
