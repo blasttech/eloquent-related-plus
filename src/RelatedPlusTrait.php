@@ -344,6 +344,58 @@ trait RelatedPlusTrait
     }
 
     /**
+     * If the relation is one-to-many, just get the first related record
+     *
+     * @param JoinClause $joinClause
+     * @param string $column
+     * @param HasMany|Relation $relation
+     * @param string $table
+     * @param string $direction
+     *
+     * @return JoinClause
+     */
+    public function hasManyJoin(JoinClause $joinClause, $column, $relation, $table, $direction)
+    {
+        return $joinClause->where(
+            $column,
+            function ($subQuery) use ($table, $direction, $relation, $column) {
+                $subQuery = $this->joinOne(
+                    $subQuery->from($table),
+                    $relation,
+                    $column,
+                    $direction
+                );
+
+                // Add any where statements with the relationship
+                $subQuery = $this->addWhereConstraints($subQuery, $relation, $table);
+
+                // Add any order statements with the relationship
+                return $this->addOrder($subQuery, $relation, $table);
+            }
+        );
+    }
+
+    /**
+     * Add orderBy if orders exist for a relation
+     *
+     * @param Builder|JoinClause $builder
+     * @param Relation|BelongsTo|HasOneOrMany $relation
+     * @param string $table
+     * @return Builder
+     */
+    protected function addOrder($builder, $relation, $table)
+    {
+        if (!empty($relation->toBase()->orders)) {
+            // Get where clauses from the relationship
+            foreach ($relation->toBase()->orders as $order) {
+                $builder->orderBy($this->columnWithTableName($table, $order['column']), $order['direction']);
+            }
+        }
+
+        return $builder;
+    }
+
+    /**
      * Set the order of a model
      *
      * @param Builder|RelatedPlus $query
@@ -511,58 +563,6 @@ trait RelatedPlusTrait
         }
 
         return $query;
-    }
-
-    /**
-     * If the relation is one-to-many, just get the first related record
-     *
-     * @param JoinClause $joinClause
-     * @param string $column
-     * @param HasMany|Relation $relation
-     * @param string $table
-     * @param string $direction
-     *
-     * @return JoinClause
-     */
-    public function hasManyJoin(JoinClause $joinClause, $column, $relation, $table, $direction)
-    {
-        return $joinClause->where(
-            $column,
-            function ($subQuery) use ($table, $direction, $relation, $column) {
-                $subQuery = $this->joinOne(
-                    $subQuery->from($table),
-                    $relation,
-                    $column,
-                    $direction
-                );
-
-                // Add any where statements with the relationship
-                $subQuery = $this->addWhereConstraints($subQuery, $relation, $table);
-
-                // Add any order statements with the relationship
-                return $this->addOrder($subQuery, $relation, $table);
-            }
-        );
-    }
-
-    /**
-     * Add orderBy if orders exist for a relation
-     *
-     * @param Builder|JoinClause $builder
-     * @param Relation|BelongsTo|HasOneOrMany $relation
-     * @param string $table
-     * @return Builder
-     */
-    protected function addOrder($builder, $relation, $table)
-    {
-        if (!empty($relation->toBase()->orders)) {
-            // Get where clauses from the relationship
-            foreach ($relation->toBase()->orders as $order) {
-                $builder->orderBy($this->columnWithTableName($table, $order['column']), $order['direction']);
-            }
-        }
-
-        return $builder;
     }
 
     /**

@@ -49,7 +49,16 @@ interface RelatedPlus
      *
      * @return Builder
      */
-    public function scopeRelationJoin(Builder $query, $table_name, $table_alias, $relation, $operator, $type, $where, $direction);
+    public function scopeRelationJoin(
+        Builder $query,
+        $table_name,
+        $table_alias,
+        $relation,
+        $operator,
+        $type,
+        $where,
+        $direction
+    );
 
     /**
      * Set the order of a model
