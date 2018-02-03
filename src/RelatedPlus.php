@@ -21,6 +21,8 @@ interface RelatedPlus
      * @param string $type
      * @param bool $where
      * @param bool $related_select
+     * @param string|null $direction
+     *
      * @return Builder
      */
     public function scopeModelJoin(
@@ -29,7 +31,8 @@ interface RelatedPlus
         $operator = '=',
         $type = 'left',
         $where = false,
-        $related_select = true
+        $related_select = true,
+        $direction = null
     );
 
     /**
@@ -42,9 +45,11 @@ interface RelatedPlus
      * @param string $operator
      * @param string $type
      * @param boolean $where
+     * @param string|null $direction
+     *
      * @return Builder
      */
-    public function scopeRelationJoin(Builder $query, $table_name, $table_alias, $relation, $operator, $type, $where);
+    public function scopeRelationJoin(Builder $query, $table_name, $table_alias, $relation, $operator, $type, $where, $direction);
 
     /**
      * Set the order of a model

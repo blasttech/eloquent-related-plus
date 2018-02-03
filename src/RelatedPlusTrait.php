@@ -56,6 +56,7 @@ trait RelatedPlusTrait
      * @param string $type
      * @param bool $where
      * @param bool $related_select
+     * @param string|null $direction
      *
      * @return Builder
      */
@@ -65,7 +66,8 @@ trait RelatedPlusTrait
         $operator = '=',
         $type = 'left',
         $where = false,
-        $related_select = true
+        $related_select = true,
+        $direction = null
     ) {
         /** @var Builder $this */
         $connection = $this->connection;
@@ -87,7 +89,7 @@ trait RelatedPlusTrait
                     );
                 }
             }
-            $query->relationJoin($table_name, $table_alias, $relation, $operator, $type, $where);
+            $query->relationJoin($table_name, $table_alias, $relation, $operator, $type, $where, $direction);
         }
 
         return $query;
@@ -131,10 +133,19 @@ trait RelatedPlusTrait
      * @param string $operator
      * @param string $type
      * @param boolean $where
+     * @param null $direction
      * @return Builder
      */
-    public function scopeRelationJoin(Builder $query, $table_name, $table_alias, $relation, $operator, $type, $where)
-    {
+    public function scopeRelationJoin(
+        Builder $query,
+        $table_name,
+        $table_alias,
+        $relation,
+        $operator,
+        $type,
+        $where,
+        $direction = null
+    ) {
         if ($table_alias !== '' && $table_name !== $table_alias) {
             $full_table_name = $table_name . ' AS ' . $table_alias;
         } else {
@@ -145,7 +156,8 @@ trait RelatedPlusTrait
             $table_name,
             $table_alias,
             $relation,
-            $operator
+            $operator,
+            $direction
         ) {
             // If a HasOne relation and ordered - ie join to the latest/earliest
             if (class_basename($relation) === 'HasOne' && !empty($relation->toBase()->orders)) {
@@ -167,7 +179,13 @@ trait RelatedPlusTrait
                 $join->on($first, $operator, $second);
 
                 // Add any where clauses from the relationship
-                return $this->addWhereConstraints($join, $relation, $table_alias);
+                $join = $this->addWhereConstraints($join, $relation, $table_alias);
+
+                if (!is_null($direction) && get_class($relation) === HasMany::class) {
+                    $join = $this->hasManyJoin($join, $first, $relation, $table_alias, $direction);
+                }
+
+                return $join;
             }
         }, null, null, $type, $where);
     }
@@ -294,7 +312,7 @@ trait RelatedPlusTrait
      * @param Builder|JoinClause $builder
      * @param Relation|BelongsTo|HasOneOrMany $relation
      * @param string $table
-     * @return Builder
+     * @return Builder|JoinClause
      */
     protected function addWhereConstraints($builder, $relation, $table)
     {
@@ -383,12 +401,6 @@ trait RelatedPlusTrait
                     false,
                     false
                 );
-
-                foreach ($this->parseRelationNames($column_relations) as $relation) {
-                    if (get_class($relation) === HasMany::class) {
-                        $query->hasManyJoin($column, $relation, $table, $direction);
-                    }
-                }
             }
         }
 
