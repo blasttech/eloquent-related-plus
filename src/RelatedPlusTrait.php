@@ -528,9 +528,7 @@ trait RelatedPlusTrait
                 $subQuery = $this->addWhereConstraints($subQuery, $relation, $table);
 
                 // Add any order statements with the relationship
-                $subQuery = $this->addOrder($subQuery, $relation, $table);
-
-                return $subQuery;
+                return $this->addOrder($subQuery, $relation, $table);
             }
         );
     }
