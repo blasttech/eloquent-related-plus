@@ -504,19 +504,19 @@ trait RelatedPlusTrait
     /**
      * If the relation is one-to-many, just get the first related record
      *
-     * @param Builder|RelatedPlus $query
+     * @param JoinClause $joinClause
      * @param string $column
      * @param HasMany|Relation $relation
      * @param string $table
      * @param string $direction
      *
-     * @return Builder
+     * @return JoinClause
      */
-    public function scopeHasManyJoin(Builder $query, $column, $relation, $table, $direction)
+    public function hasManyJoin(JoinClause $joinClause, $column, $relation, $table, $direction)
     {
-        return $query->where(
+        return $joinClause->where(
             $column,
-            function ($subQuery) use ($table, $direction, $relation, $column, $query) {
+            function ($subQuery) use ($table, $direction, $relation, $column) {
                 $subQuery = $this->joinOne(
                     $subQuery->from($table),
                     $relation,

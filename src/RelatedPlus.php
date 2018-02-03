@@ -3,6 +3,7 @@
 namespace Blasttech\EloquentRelatedPlus;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Query\JoinClause;
 
 /**
  * Interface RelatedPlus
@@ -96,15 +97,15 @@ interface RelatedPlus
     /**
      * If the relation is one-to-many, just get the first related record
      *
-     * @param Builder $query
+     * @param JoinClause $joinClause
      * @param string $column
      * @param \Illuminate\Database\Eloquent\Relations\HasMany|\Illuminate\Database\Eloquent\Relations\Relation $relation
      * @param string $table
      * @param string $direction
      *
-     * @return Builder
+     * @return JoinClause
      */
-    public function scopeHasManyJoin(Builder $query, $column, $relation, $table, $direction);
+    public function hasManyJoin(JoinClause $joinClause, $column, $relation, $table, $direction);
 
     /**
      * Add where statements for the model search fields
