@@ -2,38 +2,35 @@
 
 namespace Blasttech\EloquentRelatedPlus;
 
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOneOrMany;
-use Illuminate\Database\Eloquent\Relations\Relation;
-use Illuminate\Database\Query\Expression;
-use Illuminate\Database\Query\JoinClause;
+use InvalidArgumentException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
-use InvalidArgumentException;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Query\Expression;
+use Illuminate\Database\Query\JoinClause;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOneOrMany;
 
 /**
- * Trait RelatedPlusTrait
+ * Trait RelatedPlusTrait.
  *
  * @property array order_fields
  * @property array order_defaults
  * @property array order_relations
  * @property array order_with
- *
- * @package Blasttech\WherePlus
  */
 trait RelatedPlusTrait
 {
     /**
-     * Boot method for trait
-     *
+     * Boot method for trait.
      */
     public static function bootRelatedPlusTrait()
     {
         static::saving(function ($model) {
-            if (!empty($model->nullable)) {
+            if (! empty($model->nullable)) {
                 foreach ($model->attributes as $key => $value) {
                     if (isset($model->nullable[$key])) {
                         $model->{$key} = empty(trim($value)) ? null : $value;
@@ -48,7 +45,7 @@ trait RelatedPlusTrait
      * This determines the foreign key relations automatically to prevent the need to figure out the columns.
      * Usages:
      * $query->modelJoin('customers')
-     * $query->modelJoin('customer.client')
+     * $query->modelJoin('customer.client').
      *
      * @param Builder|RelatedPlus $query
      * @param string $relation_name
@@ -79,8 +76,8 @@ trait RelatedPlusTrait
             $table_alias = array_pop($from);
 
             if (empty($query->getQuery()->columns)) {
-                /** @var Model $this */
-                $query->select($this->getTable() . ".*");
+                /* @var Model $this */
+                $query->select($this->getTable().'.*');
             }
             if ($related_select) {
                 foreach (Schema::connection($connection)->getColumnListing($table_name) as $related_column) {
@@ -100,7 +97,7 @@ trait RelatedPlusTrait
      * $relation_name can be a single relation
      * Usage for User model:
      * parseRelationNames('customer') returns [$user->customer()]
-     * parseRelationNames('customer.contact') returns [$user->customer(), $user->customer->contact()]
+     * parseRelationNames('customer.contact') returns [$user->customer(), $user->customer->contact()].
      *
      * @param $relation_name
      * @return Relation[]
@@ -124,7 +121,7 @@ trait RelatedPlusTrait
     }
 
     /**
-     * Join a model
+     * Join a model.
      *
      * @param Builder|RelatedPlus $query
      * @param string $table_name
@@ -132,7 +129,7 @@ trait RelatedPlusTrait
      * @param Relation $relation
      * @param string $operator
      * @param string $type
-     * @param boolean $where
+     * @param bool $where
      * @param null $direction
      * @return Builder
      */
@@ -147,7 +144,7 @@ trait RelatedPlusTrait
         $direction = null
     ) {
         if ($table_alias !== '' && $table_name !== $table_alias) {
-            $full_table_name = $table_name . ' AS ' . $table_alias;
+            $full_table_name = $table_name.' AS '.$table_alias;
         } else {
             $full_table_name = $table_name;
         }
@@ -160,7 +157,7 @@ trait RelatedPlusTrait
             $direction
         ) {
             // If a HasOne relation and ordered - ie join to the latest/earliest
-            if (class_basename($relation) === 'HasOne' && !empty($relation->toBase()->orders)) {
+            if (class_basename($relation) === 'HasOne' && ! empty($relation->toBase()->orders)) {
                 // Get first relation order (should only be one)
                 $order = $relation->toBase()->orders[0];
 
@@ -181,7 +178,7 @@ trait RelatedPlusTrait
                 // Add any where clauses from the relationship
                 $join = $this->addWhereConstraints($join, $relation, $table_alias);
 
-                if (!is_null($direction) && get_class($relation) === HasMany::class) {
+                if (! is_null($direction) && get_class($relation) === HasMany::class) {
                     $join = $this->hasManyJoin($join, $first, $relation, $table_alias, $direction);
                 }
 
@@ -191,7 +188,7 @@ trait RelatedPlusTrait
     }
 
     /**
-     * Get join sql for a HasOne relation
+     * Get join sql for a HasOne relation.
      *
      * @param Relation $relation
      * @param array $order
@@ -209,11 +206,11 @@ trait RelatedPlusTrait
             )
             ->setBindings($relation->getBindings());
 
-        return DB::raw('(' . $this->toSqlWithBindings($subQuery) . ')');
+        return DB::raw('('.$this->toSqlWithBindings($subQuery).')');
     }
 
     /**
-     * Adds a where for a relation's join columns and and min/max for a given column
+     * Adds a where for a relation's join columns and and min/max for a given column.
      *
      * @param Builder|RelatedPlus $query
      * @param Relation $relation
@@ -234,7 +231,7 @@ trait RelatedPlusTrait
     }
 
     /**
-     * Get the join columns for a relation
+     * Get the join columns for a relation.
      *
      * @param Relation|BelongsTo|HasOneOrMany $relation
      * @return \stdClass
@@ -250,11 +247,11 @@ trait RelatedPlusTrait
             $second = $relation->getQualifiedForeignKeyName();
         }
 
-        return (object)['first' => $first, 'second' => $second];
+        return (object) ['first' => $first, 'second' => $second];
     }
 
     /**
-     * Adds a select for a min or max on the given column, depending on direction given
+     * Adds a select for a min or max on the given column, depending on direction given.
      *
      * @param Builder|RelatedPlus $query
      * @param string $column
@@ -266,14 +263,14 @@ trait RelatedPlusTrait
         $column = $this->addBackticks($column);
 
         if ($direction == 'asc') {
-            return $query->select(DB::raw('MIN(' . $column . ')'));
+            return $query->select(DB::raw('MIN('.$column.')'));
         } else {
-            return $query->select(DB::raw('MAX(' . $column . ')'));
+            return $query->select(DB::raw('MAX('.$column.')'));
         }
     }
 
     /**
-     * Add backticks to a table/column
+     * Add backticks to a table/column.
      *
      * @param $column
      * @return string
@@ -281,11 +278,11 @@ trait RelatedPlusTrait
     private function addBackticks($column)
     {
         return preg_match('/^[0-9a-zA-Z\.]*$/', $column) ?
-            '`' . str_replace(['`', '.'], ['', '`.`'], $column) . '`' : $column;
+            '`'.str_replace(['`', '.'], ['', '`.`'], $column).'`' : $column;
     }
 
     /**
-     * Return the sql for a query with the bindings replaced with the binding values
+     * Return the sql for a query with the bindings replaced with the binding values.
      *
      * @param Builder $builder
      * @return string
@@ -296,7 +293,7 @@ trait RelatedPlusTrait
     }
 
     /**
-     * Replace SQL placeholders with '%s'
+     * Replace SQL placeholders with '%s'.
      *
      * @param Builder $builder
      * @return mixed
@@ -307,7 +304,7 @@ trait RelatedPlusTrait
     }
 
     /**
-     * Add wheres if they exist for a relation
+     * Add wheres if they exist for a relation.
      *
      * @param Builder|JoinClause $builder
      * @param Relation|BelongsTo|HasOneOrMany $relation
@@ -324,7 +321,7 @@ trait RelatedPlusTrait
                 return [$this->columnWithTableName($table, $where['column']), $where['operator'], $where['value']];
             })->toArray();
 
-        if (!empty($wheres)) {
+        if (! empty($wheres)) {
             $builder->where($wheres);
         }
 
@@ -332,7 +329,7 @@ trait RelatedPlusTrait
     }
 
     /**
-     * Add table name to column name if table name not already included in column name
+     * Add table name to column name if table name not already included in column name.
      *
      * @param string $table
      * @param string $column
@@ -340,11 +337,11 @@ trait RelatedPlusTrait
      */
     private function columnWithTableName($table, $column)
     {
-        return (preg_match('/(' . $table . '\.|`' . $table . '`)/i', $column) > 0 ? '' : $table . '.') . $column;
+        return (preg_match('/('.$table.'\.|`'.$table.'`)/i', $column) > 0 ? '' : $table.'.').$column;
     }
 
     /**
-     * If the relation is one-to-many, just get the first related record
+     * If the relation is one-to-many, just get the first related record.
      *
      * @param JoinClause $joinClause
      * @param string $column
@@ -376,7 +373,7 @@ trait RelatedPlusTrait
     }
 
     /**
-     * Add orderBy if orders exist for a relation
+     * Add orderBy if orders exist for a relation.
      *
      * @param Builder|JoinClause $builder
      * @param Relation|BelongsTo|HasOneOrMany $relation
@@ -385,7 +382,7 @@ trait RelatedPlusTrait
      */
     protected function addOrder($builder, $relation, $table)
     {
-        if (!empty($relation->toBase()->orders)) {
+        if (! empty($relation->toBase()->orders)) {
             // Get where clauses from the relationship
             foreach ($relation->toBase()->orders as $order) {
                 $builder->orderBy($this->columnWithTableName($table, $order['column']), $order['direction']);
@@ -396,7 +393,7 @@ trait RelatedPlusTrait
     }
 
     /**
-     * Set the order of a model
+     * Set the order of a model.
      *
      * @param Builder|RelatedPlus $query
      * @param string $order_field
@@ -405,13 +402,13 @@ trait RelatedPlusTrait
      */
     public function scopeOrderByCustom(Builder $query, $order_field, $dir)
     {
-        if (!isset($this->order_fields) || !is_array($this->order_fields)) {
-            throw new InvalidArgumentException(get_class($this) . ' order fields not set correctly.');
+        if (! isset($this->order_fields) || ! is_array($this->order_fields)) {
+            throw new InvalidArgumentException(get_class($this).' order fields not set correctly.');
         }
 
         if (($order_field === '' || $dir === '')
-            && (!isset($this->order_defaults) || !is_array($this->order_defaults))) {
-            throw new InvalidArgumentException(get_class($this) . ' order defaults not set and not overriden.');
+            && (! isset($this->order_defaults) || ! is_array($this->order_defaults))) {
+            throw new InvalidArgumentException(get_class($this).' order defaults not set and not overriden.');
         }
 
         // Remove order global scope if it exists
@@ -427,7 +424,7 @@ trait RelatedPlusTrait
     }
 
     /**
-     * Check if column being sorted by is from a related model
+     * Check if column being sorted by is from a related model.
      *
      * @param Builder|RelatedPlus $query
      * @param string $column
@@ -443,7 +440,7 @@ trait RelatedPlusTrait
             $table = ($period_pos !== false ? substr($column, 0, $period_pos) : $column);
 
             if (isset($this->order_relations[$table]) &&
-                !$this->hasJoin($query, $table, $this->order_relations[$table])) {
+                ! $this->hasJoin($query, $table, $this->order_relations[$table])) {
                 $column_relations = $this->order_relations[$table];
 
                 $query->modelJoin(
@@ -460,7 +457,7 @@ trait RelatedPlusTrait
     }
 
     /**
-     * Check if this model has already been joined to a table or relation
+     * Check if this model has already been joined to a table or relation.
      *
      * @param Builder $builder
      * @param string $table
@@ -470,7 +467,7 @@ trait RelatedPlusTrait
     protected function hasJoin(Builder $builder, $table, $relation)
     {
         $joins = $builder->getQuery()->joins;
-        if (!is_null($joins)) {
+        if (! is_null($joins)) {
             foreach ($joins as $JoinClause) {
                 if ($JoinClause->table == $table) {
                     return true;
@@ -480,11 +477,11 @@ trait RelatedPlusTrait
 
         $eager_loads = $builder->getEagerLoads();
 
-        return !is_null($eager_loads) && in_array($relation, $eager_loads);
+        return ! is_null($eager_loads) && in_array($relation, $eager_loads);
     }
 
     /**
-     * Set the model order
+     * Set the model order.
      *
      * @param Builder|RelatedPlus $query
      * @param string $column
@@ -495,17 +492,17 @@ trait RelatedPlusTrait
     {
         if (isset($this->order_defaults)) {
             // If $column not in order_fields list, use default
-            if ($column == '' || !isset($this->order_fields[$column])) {
+            if ($column == '' || ! isset($this->order_fields[$column])) {
                 $column = $this->order_defaults['field'];
             }
 
             // If $direction not asc or desc, use default
-            if ($direction == '' || !in_array(strtoupper($direction), ['ASC', 'DESC'])) {
+            if ($direction == '' || ! in_array(strtoupper($direction), ['ASC', 'DESC'])) {
                 $direction = $this->order_defaults['dir'];
             }
         }
 
-        if (!is_array($this->order_fields[$column])) {
+        if (! is_array($this->order_fields[$column])) {
             $query->orderByCheckModel($this->order_fields[$column], $direction);
         } else {
             foreach ($this->order_fields[$column] as $db_field) {
@@ -517,7 +514,7 @@ trait RelatedPlusTrait
     }
 
     /**
-     * Switch a query to be a subquery of a model
+     * Switch a query to be a subquery of a model.
      *
      * @param Builder|RelatedPlus $query
      * @param Builder $model
@@ -529,12 +526,12 @@ trait RelatedPlusTrait
         $table = $model->getQuery()->from;
 
         return $query
-            ->from(DB::raw("({$sql}) as " . $table))
-            ->select($table . '.*');
+            ->from(DB::raw("({$sql}) as ".$table))
+            ->select($table.'.*');
     }
 
     /**
-     * Use a model method to add columns or joins if in the order options
+     * Use a model method to add columns or joins if in the order options.
      *
      * @param Builder|RelatedPlus $query
      * @param string $order
@@ -543,7 +540,7 @@ trait RelatedPlusTrait
     public function scopeOrderByWith(Builder $query, $order)
     {
         if (isset($this->order_with[$order])) {
-            $with = 'with' . $this->order_with[$order];
+            $with = 'with'.$this->order_with[$order];
 
             $query->$with();
         }
@@ -566,7 +563,7 @@ trait RelatedPlusTrait
     }
 
     /**
-     * Add where statements for the model search fields
+     * Add where statements for the model search fields.
      *
      * @param Builder|RelatedPlus $query
      * @param string $search
@@ -577,16 +574,16 @@ trait RelatedPlusTrait
         $search = trim($search);
 
         // If search is set
-        if ($search != "") {
-            if (!isset($this->search_fields) || !is_array($this->search_fields) || empty($this->search_fields)) {
-                throw new InvalidArgumentException(get_class($this) . ' search properties not set correctly.');
+        if ($search != '') {
+            if (! isset($this->search_fields) || ! is_array($this->search_fields) || empty($this->search_fields)) {
+                throw new InvalidArgumentException(get_class($this).' search properties not set correctly.');
             } else {
                 $search_fields = $this->search_fields;
                 /** @var Model $this */
                 $table = $this->getTable();
                 $query->where(function (Builder $query) use ($search_fields, $table, $search) {
                     foreach ($search_fields as $search_field => $search_field_parameters) {
-                        if (!isset($search_field_parameters['regex']) ||
+                        if (! isset($search_field_parameters['regex']) ||
                             preg_match($search_field_parameters['regex'], $search)) {
                             $search_column = is_array($search_field_parameters)
                                 ? $search_field : $search_field_parameters;
@@ -612,12 +609,12 @@ trait RelatedPlusTrait
                                         $search_field_parameters,
                                         $related_table
                                     ) {
-                                        $query2->where($related_table . '.' . $search_column, 'like', $search . '%');
+                                        $query2->where($related_table.'.'.$search_column, 'like', $search.'%');
                                     });
                                 });
                             } else {
                                 $query->orWhere(
-                                    $table . '.' . $search_column,
+                                    $table.'.'.$search_column,
                                     $search_operator,
                                     str_replace('{{search}}', $search, $search_value)
                                 );
