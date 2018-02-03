@@ -6,9 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Query\JoinClause;
 
 /**
- * Interface RelatedPlus
- *
- * @package Blasttech\RelatedPlus
+ * Interface RelatedPlus.
  */
 interface RelatedPlus
 {
@@ -36,7 +34,7 @@ interface RelatedPlus
     );
 
     /**
-     * Join a model
+     * Join a model.
      *
      * @param Builder $query
      * @param string $table_name
@@ -44,7 +42,7 @@ interface RelatedPlus
      * @param \Illuminate\Database\Eloquent\Relations\Relation $relation
      * @param string $operator
      * @param string $type
-     * @param boolean $where
+     * @param bool $where
      * @param string|null $direction
      *
      * @return Builder
@@ -61,7 +59,7 @@ interface RelatedPlus
     );
 
     /**
-     * Set the order of a model
+     * Set the order of a model.
      *
      * @param Builder $query
      * @param string $order_field
@@ -71,7 +69,7 @@ interface RelatedPlus
     public function scopeOrderByCustom(Builder $query, $order_field, $dir);
 
     /**
-     * Check if column being sorted by is from a related model
+     * Check if column being sorted by is from a related model.
      *
      * @param Builder $query
      * @param string $column
@@ -81,7 +79,7 @@ interface RelatedPlus
     public function scopeOrderByCheckModel(Builder $query, $column, $direction);
 
     /**
-     * Set the model order
+     * Set the model order.
      *
      * @param Builder $query
      * @param string $column
@@ -91,7 +89,7 @@ interface RelatedPlus
     public function scopeSetCustomOrder(Builder $query, $column, $direction);
 
     /**
-     * Switch a query to be a subquery of a model
+     * Switch a query to be a subquery of a model.
      *
      * @param Builder $query
      * @param Builder $model
@@ -100,7 +98,7 @@ interface RelatedPlus
     public function scopeSetSubquery(Builder $query, $model);
 
     /**
-     * Use a model method to add columns or joins if in the order options
+     * Use a model method to add columns or joins if in the order options.
      *
      * @param Builder $query
      * @param string $order
@@ -109,7 +107,7 @@ interface RelatedPlus
     public function scopeOrderByWith(Builder $query, $order);
 
     /**
-     * If the relation is one-to-many, just get the first related record
+     * If the relation is one-to-many, just get the first related record.
      *
      * @param JoinClause $joinClause
      * @param string $column
@@ -122,7 +120,7 @@ interface RelatedPlus
     public function hasManyJoin(JoinClause $joinClause, $column, $relation, $table, $direction);
 
     /**
-     * Add where statements for the model search fields
+     * Add where statements for the model search fields.
      *
      * @param Builder $query
      * @param string $search

@@ -3,9 +3,9 @@
 namespace Blasttech\EloquentRelatedPlus\Test;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Blasttech\EloquentRelatedPlus\RelatedPlus;
 use Blasttech\EloquentRelatedPlus\RelatedPlusTrait;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class DummyWithSoftDeletes extends Model implements RelatedPlus
 {
