@@ -4,6 +4,7 @@
 [![Build Status](https://img.shields.io/travis/blasttech/eloquent-related-plus.svg?style=flat-square)](https://travis-ci.org/blasttech/eloquent-related-plus)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
 [![StyleCI](https://styleci.io/repos/117756196/shield?branch=master)](https://styleci.io/repos/117756196)
+[![Quality Score](https://img.shields.io/scrutinizer/g/blasttech/eloquent-related-plus.svg?style=flat-square)](https://scrutinizer-ci.com/g/blasttech/eloquent-related-plus)
 [![Total Downloads](https://img.shields.io/packagist/dt/blasttech/eloquent-related-plus.svg?style=flat-square)](https://packagist.org/packages/blasttech/eloquent-related-plus)
 
 This package provides a trait that adds extra ways to order and search complex models.
