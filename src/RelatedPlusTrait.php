@@ -466,6 +466,22 @@ trait RelatedPlusTrait
      */
     protected function hasJoin(Builder $builder, $table, $relation)
     {
+        if (!$this->checkJoins($builder, $table)) {
+            return $this->checkEagerLoads($builder, $relation);
+        } else {
+            return true;
+        }
+    }
+
+    /**
+     * Check if model is currently joined to $table
+     *
+     * @param Builder $builder
+     * @param string $table
+     * @return bool
+     */
+    private function checkJoins(Builder $builder, $table)
+    {
         $joins = $builder->getQuery()->joins;
         if (!is_null($joins)) {
             foreach ($joins as $joinClause) {
@@ -475,6 +491,18 @@ trait RelatedPlusTrait
             }
         }
 
+        return false;
+    }
+
+    /**
+     * Check if relation exists in eager loads
+     *
+     * @param Builder $builder
+     * @param \Illuminate\Database\Eloquent\Relations\Relation $relation
+     * @return bool
+     */
+    private function checkEagerLoads(Builder $builder, $relation)
+    {
         $eagerLoads = $builder->getEagerLoads();
 
         return !is_null($eagerLoads) && in_array($relation, $eagerLoads);
