@@ -565,67 +565,109 @@ trait RelatedPlusTrait
      * Add where statements for the model search fields
      *
      * @param Builder $query
-     * @param string $search
+     * @param string $searchText
      * @return Builder
      */
-    public function scopeSearch(Builder $query, $search = '')
+    public function scopeSearch(Builder $query, $searchText = '')
     {
-        $search = trim($search);
+        $searchText = trim($searchText);
 
         // If search is set
-        if ($search != "") {
+        if ($searchText != "") {
             if (!isset($this->search_fields) || !is_array($this->search_fields) || empty($this->search_fields)) {
                 throw new InvalidArgumentException(get_class($this) . ' search properties not set correctly.');
             } else {
-                $searchFields = $this->search_fields;
-                /** @var Model $this */
-                $table = $this->getTable();
-                $query->where(function (Builder $query) use ($searchFields, $table, $search) {
-                    foreach ($searchFields as $searchField => $searchFieldParameters) {
-                        if (!isset($searchFieldParameters['regex']) ||
-                            preg_match($searchFieldParameters['regex'], $search)) {
-                            $searchColumn = is_array($searchFieldParameters)
-                                ? $searchField : $searchFieldParameters;
-                            $searchOperator = isset($searchFieldParameters['operator'])
-                                ? $searchFieldParameters['operator'] : 'like';
-                            $searchValue = isset($searchFieldParameters['value'])
-                                ? $searchFieldParameters['value'] : '%{{search}}%';
-
-                            if (isset($searchFieldParameters['relation'])) {
-                                $relation = $searchFieldParameters['relation'];
-                                $relatedTable = $this->$relation()->getRelated()->getTable();
-
-                                $query->orWhere(function (Builder $query) use (
-                                    $search,
-                                    $searchColumn,
-                                    $searchFieldParameters,
-                                    $relation,
-                                    $relatedTable
-                                ) {
-                                    $query->orWhereHas($relation, function (Builder $query2) use (
-                                        $search,
-                                        $searchColumn,
-                                        $searchFieldParameters,
-                                        $relatedTable
-                                    ) {
-                                        $query2->where($relatedTable . '.' . $searchColumn, 'like', $search . '%');
-                                    });
-                                });
-                            } else {
-                                $query->orWhere(
-                                    $table . '.' . $searchColumn,
-                                    $searchOperator,
-                                    str_replace('{{search}}', $search, $searchValue)
-                                );
-                            }
-                        }
-                    }
-
-                    return $query;
-                });
+                $query = $this->addSearch($query, $searchText);
             }
         }
 
         return $query;
+    }
+
+    /**
+     * Add where statements for search fields to search for searchText
+     *
+     * @param Builder $query
+     * @param string $searchText
+     * @return Builder
+     */
+    private function addSearch($query, $searchText)
+    {
+        return $query->where(function (Builder $query) use ($searchText) {
+            $searchFields = $this->search_fields ?? [];
+            if (!empty($searchFields)) {
+                /** @var Model $this */
+                $table = $this->getTable();
+                foreach ($searchFields as $searchField => $searchFieldParameters) {
+                    if (!isset($searchFieldParameters['regex']) ||
+                        preg_match($searchFieldParameters['regex'], $searchText)) {
+                        $searchColumn = is_array($searchFieldParameters)
+                            ? $searchField : $searchFieldParameters;
+
+                        if (isset($searchFieldParameters['relation'])) {
+                            $query = $this->searchRelation($query, $searchFieldParameters, $searchColumn, $searchText);
+                        } else {
+                            $query = $this->searchThis($query, $searchFieldParameters, $table, $searchColumn, $searchText);
+                        }
+                    }
+                }
+            }
+
+            return $query;
+        });
+    }
+
+    /**
+     * Add where condition to search current model
+     *
+     * @param Builder $query
+     * @param array $searchFieldParameters
+     * @param string $table
+     * @param string $searchColumn
+     * @param string $searchText
+     * @return Builder
+     */
+    public function searchThis(Builder $query, $searchFieldParameters, $table, $searchColumn, $searchText)
+    {
+        $searchOperator = $searchFieldParameters['operator'] ?? 'like';
+        $searchValue = $searchFieldParameters['value'] ?? '%{{search}}%';
+
+        return $query->orWhere(
+            $table . '.' . $searchColumn,
+            $searchOperator,
+            str_replace('{{search}}', $searchText, $searchValue)
+        );
+    }
+
+    /**
+     * Add where condition to search a relation
+     *
+     * @param Builder $query
+     * @param array $searchFieldParameters
+     * @param string $searchColumn
+     * @param string $searchText
+     * @return Builder
+     */
+    private function searchRelation(Builder $query, $searchFieldParameters, $searchColumn, $searchText)
+    {
+        $relation = $searchFieldParameters['relation'];
+        $relatedTable = $this->$relation()->getRelated()->getTable();
+
+        return $query->orWhere(function (Builder $query) use (
+            $searchText,
+            $searchColumn,
+            $searchFieldParameters,
+            $relation,
+            $relatedTable
+        ) {
+            return $query->orWhereHas($relation, function (Builder $query2) use (
+                $searchText,
+                $searchColumn,
+                $searchFieldParameters,
+                $relatedTable
+            ) {
+                return $query2->where($relatedTable . '.' . $searchColumn, 'like', $searchText . '%');
+            });
+        });
     }
 }
