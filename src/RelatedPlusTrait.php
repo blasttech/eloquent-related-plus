@@ -100,7 +100,7 @@ trait RelatedPlusTrait
      * parseRelationNames('customer') returns [$user->customer()]
      * parseRelationNames('customer.contact') returns [$user->customer(), $user->customer->contact()]
      *
-     * @param $relationName
+     * @param string $relationName
      * @return Relation[]
      */
     protected function parseRelationNames($relationName)
@@ -273,7 +273,7 @@ trait RelatedPlusTrait
     /**
      * Add backticks to a table/column
      *
-     * @param $column
+     * @param string $column
      * @return string
      */
     private function addBackticks($column)
@@ -297,7 +297,7 @@ trait RelatedPlusTrait
      * Replace SQL placeholders with '%s'
      *
      * @param Builder $builder
-     * @return mixed
+     * @return string
      */
     private function replacePlaceholders(Builder $builder)
     {
@@ -344,7 +344,7 @@ trait RelatedPlusTrait
     /**
      * If the relation is one-to-many, just get the first related record
      *
-     * @param Builder|JoinClause $joinClause
+     * @param JoinClause $joinClause
      * @param string $column
      * @param HasMany|Relation $relation
      * @param string $table
