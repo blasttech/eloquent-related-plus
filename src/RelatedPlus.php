@@ -16,22 +16,22 @@ interface RelatedPlus
      * This determines the foreign key relations automatically to prevent the need to figure out the columns.
      *
      * @param Builder $query
-     * @param string $relation_name
+     * @param string $relationName
      * @param string $operator
      * @param string $type
      * @param bool $where
-     * @param bool $related_select
+     * @param bool $relatedSelect
      * @param string|null $direction
      *
      * @return Builder
      */
     public function scopeModelJoin(
         Builder $query,
-        $relation_name,
+        $relationName,
         $operator = '=',
         $type = 'left',
         $where = false,
-        $related_select = true,
+        $relatedSelect = true,
         $direction = null
     );
 
@@ -39,8 +39,8 @@ interface RelatedPlus
      * Join a model
      *
      * @param Builder $query
-     * @param string $table_name
-     * @param string $table_alias
+     * @param string $tableName
+     * @param string $tableAlias
      * @param \Illuminate\Database\Eloquent\Relations\Relation $relation
      * @param string $operator
      * @param string $type
@@ -51,8 +51,8 @@ interface RelatedPlus
      */
     public function scopeRelationJoin(
         Builder $query,
-        $table_name,
-        $table_alias,
+        $tableName,
+        $tableAlias,
         $relation,
         $operator,
         $type,
@@ -64,11 +64,11 @@ interface RelatedPlus
      * Set the order of a model
      *
      * @param Builder $query
-     * @param string $order_field
+     * @param string $orderField
      * @param string $dir
      * @return Builder
      */
-    public function scopeOrderByCustom(Builder $query, $order_field, $dir);
+    public function scopeOrderByCustom(Builder $query, $orderField, $dir);
 
     /**
      * Check if column being sorted by is from a related model
