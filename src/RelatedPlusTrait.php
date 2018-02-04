@@ -21,6 +21,7 @@ use InvalidArgumentException;
  * @property array order_defaults
  * @property array order_relations
  * @property array order_with
+ * @property array search_fields
  *
  * @package Blasttech\WherePlus
  */
