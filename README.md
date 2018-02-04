@@ -1,5 +1,28 @@
-# eloquent-related-plus
-Adds search and order functionality to Laravel Eloquent models.
+# Add extra search and order functionality to Laravel Eloquent models.
+
+[![Latest Version](https://img.shields.io/github/tag/blasttech/eloquent-related-plus.svg?style=flat-square)](https://github.com/blasttech/eloquent-related-plus/releases)
+[![Build Status](https://img.shields.io/travis/blasttech/eloquent-related-plus.svg?style=flat-square)](https://travis-ci.org/blasttech/eloquent-related-plus)
+[![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
+[![StyleCI](https://styleci.io/repos/117756196/shield?branch=master)](https://styleci.io/repos/117756196)
+[![Total Downloads](https://img.shields.io/packagist/dt/blasttech/eloquent-related-plus.svg?style=flat-square)](https://packagist.org/packages/blasttech/eloquent-related-plus)
+
+This package provides a trait that adds extra ways to order and search complex models.
+
+## Installation
+
+This package can be installed through Composer.
+
+```
+$ composer require blasttech/eloquent-related-plus
+```
+
+## Usage
+
+To add complex order and search behaviour to your model you must:<br />
+1. specify that the model will conform to ```Blasttech\EloquentRelatedPlus\RelatePlus```<br />
+2. use the trait ```Blasttech\EloquentRelatedPlus\RelatedPlusTrait```<br />
+
+### Example
 
 Functions: 
  * modelJoin($relation_name, $operator = '=', $type = 'left', $where = false, $related_select = true)
