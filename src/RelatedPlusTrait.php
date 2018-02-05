@@ -466,19 +466,32 @@ trait RelatedPlusTrait
         $periodPos = strpos($column, '.');
         if (isset($this->order_relations) && ($periodPos !== false || isset($this->order_relations[$column]))) {
             $table = ($periodPos !== false ? substr($column, 0, $periodPos) : $column);
+            $query = $this->joinRelatedTable($query, $table);
+        }
 
-            if (isset($this->order_relations[$table]) &&
-                !$this->hasJoin($query, $table, $this->order_relations[$table])) {
-                $columnRelations = $this->order_relations[$table];
+        return $query;
+    }
 
-                $query->modelJoin(
-                    $columnRelations,
-                    '=',
-                    'left',
-                    false,
-                    false
-                );
-            }
+    /**
+     * Join a related table if not already joined
+     *
+     * @param Builder $query
+     * @param string $table
+     * @return Builder
+     */
+    private function joinRelatedTable($query, $table)
+    {
+        if (isset($this->order_relations[$table]) &&
+            !$this->hasJoin($query, $table, $this->order_relations[$table])) {
+            $columnRelations = $this->order_relations[$table];
+
+            $query->modelJoin(
+                $columnRelations,
+                '=',
+                'left',
+                false,
+                false
+            );
         }
 
         return $query;
