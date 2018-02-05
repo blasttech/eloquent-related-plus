@@ -547,17 +547,55 @@ trait RelatedPlusTrait
     public function scopeSetCustomOrder(Builder $query, $column, $direction)
     {
         if (isset($this->order_defaults)) {
-            // If $column not in order_fields list, use default
-            if ($column == '' || !isset($this->order_fields[$column])) {
-                $column = $this->order_defaults['field'];
-            }
-
-            // If $direction not asc or desc, use default
-            if ($direction == '' || !in_array(strtoupper($direction), ['ASC', 'DESC'])) {
-                $direction = $this->order_defaults['dir'];
-            }
+            $column = $this->setColumn($column);
+            $direction = $this->setDirection($direction);
         }
 
+        return $this->setOrder($query, $column, $direction);
+    }
+
+    /**
+     * Override column if provided column not valid
+     *
+     * @param $column
+     * @return string
+     */
+    private function setColumn($column)
+    {
+        // If $column not in order_fields list, use default
+        if ($column == '' || !isset($this->order_fields[$column])) {
+            $column = $this->order_defaults['field'];
+        }
+
+        return $column;
+    }
+
+    /**
+     * Override direction if provided direction not valid
+     *
+     * @param string $direction
+     * @return string
+     */
+    private function setDirection($direction)
+    {
+        // If $direction not asc or desc, use default
+        if ($direction == '' || !in_array(strtoupper($direction), ['ASC', 'DESC'])) {
+            $direction = $this->order_defaults['dir'];
+        }
+
+        return $direction;
+    }
+
+    /**
+     * Set order based on order_fields
+     *
+     * @param Builder $query
+     * @param string $column
+     * @param string $direction
+     * @return Builder
+     */
+    private function setOrder($query, $column, $direction)
+    {
         if (!is_array($this->order_fields[$column])) {
             $query->orderByCheckModel($this->order_fields[$column], $direction);
         } else {
