@@ -162,25 +162,7 @@ trait RelatedPlusTrait
             if (class_basename($relation) === 'HasOne' && !empty($relation->toBase()->orders)) {
                 return $this->hasOneJoin($relation, $join);
             } else {
-                // Get relation join columns
-                $joinColumns = $this->getJoinColumns($relation);
-
-                $first = $joinColumns->first;
-                $second = $joinColumns->second;
-                if ($tableName !== $tableAlias) {
-                    $first = str_replace($tableName, $tableAlias, $first);
-                    $second = str_replace($tableName, $tableAlias, $second);
-                }
-
-                $join->on($first, $operator, $second);
-
-                // Add any where clauses from the relationship
-                $join = $this->addWhereConstraints($join, $relation, $tableAlias);
-
-                if (!is_null($direction) && get_class($relation) === HasMany::class) {
-                }
-
-                return $join;
+                return $this->hasManyJoin($relation, $join, $tableName, $tableAlias, $operator, $direction);
             }
         }, null, null, $type, $where);
     }
@@ -223,7 +205,41 @@ trait RelatedPlusTrait
     }
 
     /**
+     * Join a HasMany Relation
+     *
+     * @param Relation $relation
+     * @param JoinClause $join
+     * @param string $tableName
+     * @param string $tableAlias
+     * @param string $operator
+     * @param string $direction
+     * @return Builder|JoinClause
+     */
+    private function hasManyJoin($relation, $join, $tableName, $tableAlias, $operator, $direction)
+    {
+        // Get relation join columns
+        $joinColumns = $this->getJoinColumns($relation);
+
+        $first = $joinColumns->first;
+        $second = $joinColumns->second;
+        if ($tableName !== $tableAlias) {
+            $first = str_replace($tableName, $tableAlias, $first);
+            $second = str_replace($tableName, $tableAlias, $second);
+        }
+
+        $join->on($first, $operator, $second);
+
+        // Add any where clauses from the relationship
+        $join = $this->addWhereConstraints($join, $relation, $tableAlias);
+
+        if (!is_null($direction) && get_class($relation) === HasMany::class) {
             $join = $this->hasManyJoinWhere($join, $first, $relation, $tableAlias, $direction);
+        }
+
+        return $join;
+    }
+
+    /**
      * Adds a where for a relation's join columns and and min/max for a given column
      *
      * @param Builder $query
