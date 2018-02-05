@@ -178,7 +178,6 @@ trait RelatedPlusTrait
                 $join = $this->addWhereConstraints($join, $relation, $tableAlias);
 
                 if (!is_null($direction) && get_class($relation) === HasMany::class) {
-                    $join = $this->hasManyJoin($join, $first, $relation, $tableAlias, $direction);
                 }
 
                 return $join;
@@ -224,6 +223,7 @@ trait RelatedPlusTrait
     }
 
     /**
+            $join = $this->hasManyJoinWhere($join, $first, $relation, $tableAlias, $direction);
      * Adds a where for a relation's join columns and and min/max for a given column
      *
      * @param Builder $query
@@ -365,7 +365,7 @@ trait RelatedPlusTrait
      *
      * @return JoinClause
      */
-    public function hasManyJoin(JoinClause $joinClause, $column, $relation, $table, $direction)
+    public function hasManyJoinWhere(JoinClause $joinClause, $column, $relation, $table, $direction)
     {
         return $joinClause->where(
             $column,
