@@ -494,7 +494,7 @@ trait RelatedPlusTrait
      */
     protected function hasJoin(Builder $builder, $table, $relation)
     {
-        if (!$this->checkJoins($builder, $table)) {
+        if (!$this->isJoined($builder, $table)) {
             return $this->isEagerLoaded($builder, $relation);
         } else {
             return true;
@@ -508,7 +508,7 @@ trait RelatedPlusTrait
      * @param string $table
      * @return bool
      */
-    private function checkJoins(Builder $builder, $table)
+    private function isJoined(Builder $builder, $table)
     {
         $joins = $builder->getQuery()->joins;
         if (!is_null($joins)) {
