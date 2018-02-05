@@ -205,41 +205,6 @@ trait RelatedPlusTrait
     }
 
     /**
-     * Join a HasMany Relation
-     *
-     * @param Relation $relation
-     * @param JoinClause $join
-     * @param string $tableName
-     * @param string $tableAlias
-     * @param string $operator
-     * @param string $direction
-     * @return Builder|JoinClause
-     */
-    private function hasManyJoin($relation, $join, $tableName, $tableAlias, $operator, $direction)
-    {
-        // Get relation join columns
-        $joinColumns = $this->getJoinColumns($relation);
-
-        $first = $joinColumns->first;
-        $second = $joinColumns->second;
-        if ($tableName !== $tableAlias) {
-            $first = str_replace($tableName, $tableAlias, $first);
-            $second = str_replace($tableName, $tableAlias, $second);
-        }
-
-        $join->on($first, $operator, $second);
-
-        // Add any where clauses from the relationship
-        $join = $this->addWhereConstraints($join, $relation, $tableAlias);
-
-        if (!is_null($direction) && get_class($relation) === HasMany::class) {
-            $join = $this->hasManyJoinWhere($join, $first, $relation, $tableAlias, $direction);
-        }
-
-        return $join;
-    }
-
-    /**
      * Adds a where for a relation's join columns and and min/max for a given column
      *
      * @param Builder $query
@@ -331,6 +296,41 @@ trait RelatedPlusTrait
     private function replacePlaceholders(Builder $builder)
     {
         return str_replace(['?'], ['\'%s\''], $builder->toSql());
+    }
+
+    /**
+     * Join a HasMany Relation
+     *
+     * @param Relation $relation
+     * @param JoinClause $join
+     * @param string $tableName
+     * @param string $tableAlias
+     * @param string $operator
+     * @param string $direction
+     * @return Builder|JoinClause
+     */
+    private function hasManyJoin($relation, $join, $tableName, $tableAlias, $operator, $direction)
+    {
+        // Get relation join columns
+        $joinColumns = $this->getJoinColumns($relation);
+
+        $first = $joinColumns->first;
+        $second = $joinColumns->second;
+        if ($tableName !== $tableAlias) {
+            $first = str_replace($tableName, $tableAlias, $first);
+            $second = str_replace($tableName, $tableAlias, $second);
+        }
+
+        $join->on($first, $operator, $second);
+
+        // Add any where clauses from the relationship
+        $join = $this->addWhereConstraints($join, $relation, $tableAlias);
+
+        if (!is_null($direction) && get_class($relation) === HasMany::class) {
+            $join = $this->hasManyJoinWhere($join, $first, $relation, $tableAlias, $direction);
+        }
+
+        return $join;
     }
 
     /**
@@ -727,28 +727,6 @@ trait RelatedPlusTrait
     }
 
     /**
-     * Add where condition to search current model
-     *
-     * @param Builder $query
-     * @param array $searchFieldParameters
-     * @param string $table
-     * @param string $searchColumn
-     * @param string $searchText
-     * @return Builder
-     */
-    public function searchThis(Builder $query, $searchFieldParameters, $table, $searchColumn, $searchText)
-    {
-        $searchOperator = $searchFieldParameters['operator'] ?? 'like';
-        $searchValue = $searchFieldParameters['value'] ?? '%{{search}}%';
-
-        return $query->orWhere(
-            $table . '.' . $searchColumn,
-            $searchOperator,
-            str_replace('{{search}}', $searchText, $searchValue)
-        );
-    }
-
-    /**
      * Add where condition to search a relation
      *
      * @param Builder $query
@@ -778,5 +756,27 @@ trait RelatedPlusTrait
                 return $query2->where($relatedTable . '.' . $searchColumn, 'like', $searchText . '%');
             });
         });
+    }
+
+    /**
+     * Add where condition to search current model
+     *
+     * @param Builder $query
+     * @param array $searchFieldParameters
+     * @param string $table
+     * @param string $searchColumn
+     * @param string $searchText
+     * @return Builder
+     */
+    public function searchThis(Builder $query, $searchFieldParameters, $table, $searchColumn, $searchText)
+    {
+        $searchOperator = $searchFieldParameters['operator'] ?? 'like';
+        $searchValue = $searchFieldParameters['value'] ?? '%{{search}}%';
+
+        return $query->orWhere(
+            $table . '.' . $searchColumn,
+            $searchOperator,
+            str_replace('{{search}}', $searchText, $searchValue)
+        );
     }
 }
