@@ -427,28 +427,54 @@ trait RelatedPlusTrait
      *
      * @param Builder $query
      * @param string $orderField
-     * @param string $dir
+     * @param string $direction
      * @return Builder
      */
-    public function scopeOrderByCustom(Builder $query, $orderField, $dir)
+    public function scopeOrderByCustom(Builder $query, $orderField, $direction)
+    {
+        if ($this->fieldsCheck($orderField, $direction)) {
+            $query = $this->removeOrderGlobalScope($query);
+        }
+
+        return $query->setCustomOrder($orderField, $direction);
+    }
+
+    /**
+     * Check $order_fields and $order_defaults are set
+     *
+     * @param $orderField
+     * @param $direction
+     * @return bool
+     */
+    private function fieldsCheck($orderField, $direction)
     {
         if (!isset($this->order_fields) || !is_array($this->order_fields)) {
             throw new InvalidArgumentException(get_class($this) . ' order fields not set correctly.');
+        } else {
+            if (($orderField === '' || $direction === '')
+                && (!isset($this->order_defaults) || !is_array($this->order_defaults))) {
+                throw new InvalidArgumentException(get_class($this) . ' order defaults not set and not overriden.');
+            } else {
+                return true;
+            }
         }
+    }
 
-        if (($orderField === '' || $dir === '')
-            && (!isset($this->order_defaults) || !is_array($this->order_defaults))) {
-            throw new InvalidArgumentException(get_class($this) . ' order defaults not set and not overriden.');
-        }
-
-        // Remove order global scope if it exists
+    /**
+     * Remove order global scope if it exists
+     *
+     * @param Builder $query
+     * @return Builder
+     */
+    private function removeOrderGlobalScope($query)
+    {
         /** @var Model $this */
         $globalScopes = $this->getGlobalScopes();
         if (isset($globalScopes['order'])) {
             $query->withoutGlobalScope('order');
         }
 
-        return $query->setCustomOrder($orderField, $dir);
+        return $query;
     }
 
     /**
