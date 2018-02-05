@@ -495,7 +495,7 @@ trait RelatedPlusTrait
     protected function hasJoin(Builder $builder, $table, $relation)
     {
         if (!$this->checkJoins($builder, $table)) {
-            return $this->checkEagerLoads($builder, $relation);
+            return $this->isEagerLoaded($builder, $relation);
         } else {
             return true;
         }
@@ -529,7 +529,7 @@ trait RelatedPlusTrait
      * @param \Illuminate\Database\Eloquent\Relations\Relation $relation
      * @return bool
      */
-    private function checkEagerLoads(Builder $builder, $relation)
+    private function isEagerLoaded(Builder $builder, $relation)
     {
         $eagerLoads = $builder->getEagerLoads();
 
