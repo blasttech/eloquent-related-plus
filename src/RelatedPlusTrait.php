@@ -618,7 +618,7 @@ trait RelatedPlusTrait
             if (!isset($this->search_fields) || !is_array($this->search_fields) || empty($this->search_fields)) {
                 throw new InvalidArgumentException(get_class($this) . ' search properties not set correctly.');
             } else {
-                $query = $this->addSearch($query, $searchText);
+                $query = $this->checkSearchFields($query, $searchText);
             }
         }
 
@@ -632,7 +632,7 @@ trait RelatedPlusTrait
      * @param string $searchText
      * @return Builder
      */
-    private function addSearch($query, $searchText)
+    private function checkSearchFields($query, $searchText)
     {
         return $query->where(function (Builder $query) use ($searchText) {
             $searchFields = $this->search_fields ?? [];
