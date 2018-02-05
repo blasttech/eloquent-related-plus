@@ -319,7 +319,9 @@ trait RelatedPlusTrait
      */
     private function toSqlWithBindings(Builder $builder)
     {
-        return vsprintf($this->replacePlaceholders($builder), array_map('addslashes', $builder->getBindings()));
+		$sql = $this->replacePlaceholders($builder);
+        $sql = preg_replace('/%[^s]/', '%$0', $sql);//% to %%
+        return vsprintf($sql, array_map('addslashes', $builder->getBindings()));
     }
 
     /**
