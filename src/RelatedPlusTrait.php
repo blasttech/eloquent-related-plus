@@ -373,7 +373,7 @@ trait RelatedPlusTrait
     /**
      * If the relation is one-to-many, just get the first related record
      *
-     * @param JoinClause $joinClause
+     * @param Builder|JoinClause $joinClause
      * @param string $column
      * @param HasMany|Relation $relation
      * @param string $table
