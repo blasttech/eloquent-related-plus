@@ -160,10 +160,7 @@ trait RelatedPlusTrait
         ) {
             // If a HasOne relation and ordered - ie join to the latest/earliest
             if (class_basename($relation) === 'HasOne' && !empty($relation->toBase()->orders)) {
-                // Get first relation order (should only be one)
-                $order = $relation->toBase()->orders[0];
-
-                return $join->on($order['column'], $this->hasOneJoinSql($relation, $order));
+                return $this->hasOneJoin($relation, $join);
             } else {
                 // Get relation join columns
                 $joinColumns = $this->getJoinColumns($relation);
@@ -187,6 +184,21 @@ trait RelatedPlusTrait
                 return $join;
             }
         }, null, null, $type, $where);
+    }
+
+    /**
+     * Join a HasOne relation which is ordered
+     *
+     * @param Relation $relation
+     * @param JoinClause $join
+     * @return JoinClause
+     */
+    private function hasOneJoin($relation, $join)
+    {
+        // Get first relation order (should only be one)
+        $order = $relation->toBase()->orders[0];
+
+        return $join->on($order['column'], $this->hasOneJoinSql($relation, $order));
     }
 
     /**
