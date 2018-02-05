@@ -635,27 +635,41 @@ trait RelatedPlusTrait
     private function checkSearchFields($query, $searchText)
     {
         return $query->where(function (Builder $query) use ($searchText) {
-            $searchFields = $this->search_fields ?? [];
-            if (!empty($searchFields)) {
+            if (isset($this->search_fields) && !empty($this->search_fields)) {
                 /** @var Model $this */
                 $table = $this->getTable();
-                foreach ($searchFields as $searchField => $searchFieldParameters) {
-                    if (!isset($searchFieldParameters['regex']) ||
-                        preg_match($searchFieldParameters['regex'], $searchText)) {
-                        $searchColumn = is_array($searchFieldParameters)
-                            ? $searchField : $searchFieldParameters;
-
-                        if (isset($searchFieldParameters['relation'])) {
-                            $query = $this->searchRelation($query, $searchFieldParameters, $searchColumn, $searchText);
-                        } else {
-                            $query = $this->searchThis($query, $searchFieldParameters, $table, $searchColumn, $searchText);
-                        }
-                    }
+                foreach ($this->search_fields as $searchField => $searchFieldParameters) {
+                    $query = $this->checkSearchField($query, $table, $searchField, $searchFieldParameters, $searchText);
                 }
             }
 
             return $query;
         });
+    }
+
+    /**
+     * Add where statement for a search field
+     *
+     * @param Builder $query
+     * @param string $table
+     * @param string $searchField
+     * @param array $searchFieldParameters
+     * @param string $searchText
+     * @return Builder
+     */
+    private function checkSearchField($query, $table, $searchField, $searchFieldParameters, $searchText)
+    {
+        if (!isset($searchFieldParameters['regex']) || preg_match($searchFieldParameters['regex'], $searchText)) {
+            $searchColumn = is_array($searchFieldParameters) ? $searchField : $searchFieldParameters;
+
+            if (isset($searchFieldParameters['relation'])) {
+                return $this->searchRelation($query, $searchFieldParameters, $searchColumn, $searchText);
+            } else {
+                return $this->searchThis($query, $searchFieldParameters, $table, $searchColumn, $searchText);
+            }
+        } else {
+            return $query;
+        }
     }
 
     /**
