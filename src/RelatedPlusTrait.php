@@ -451,49 +451,6 @@ trait RelatedPlusTrait
     }
 
     /**
-     * Check $order_fields and $order_defaults are set
-     *
-     * @param string $orderField
-     * @param string $direction
-     * @return bool
-     */
-    private function hasOrderFieldsAndDefaults($orderField, $direction)
-    {
-        return $this->hasOrderFields() && $this->hasOrderDefaults($orderField, $direction);
-    }
-
-    /**
-     * Check $this->order_fields set correctly
-     *
-     * @return bool
-     */
-    private function hasOrderFields()
-    {
-        if (!isset($this->order_fields) || !is_array($this->order_fields)) {
-            throw new InvalidArgumentException(get_class($this) . ' order fields not set correctly.');
-        } else {
-            return true;
-        }
-    }
-
-    /**
-     * Check order defaults set correctly
-     *
-     * @param string $orderField
-     * @param string $direction
-     * @return bool
-     */
-    private function hasOrderDefaults($orderField, $direction)
-    {
-        if (($orderField === '' || $direction === '')
-            && (!isset($this->order_defaults) || !is_array($this->order_defaults))) {
-            throw new InvalidArgumentException(get_class($this) . ' order defaults not set and not overriden.');
-        } else {
-            return true;
-        }
-    }
-
-    /**
      * Add where statements for search fields to search for searchText
      *
      * @param Builder $query
