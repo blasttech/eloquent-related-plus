@@ -22,12 +22,20 @@ use InvalidArgumentException;
  * @property array order_relations
  * @property array order_with
  * @property array search_fields
+ * @property string connection
  *
  * @package Blasttech\WherePlus
  */
 trait RelatedPlusTrait
 {
     use HelperMethodTrait;
+
+    /**
+     * Get the table associated with the model.
+     *
+     * @return string
+     */
+    abstract function getTable();
 
     /**
      * Boot method for trait
@@ -231,6 +239,7 @@ trait RelatedPlusTrait
     {
         $column = $this->addBackticks($column);
 
+        /** @var Model $query */
         if ($direction == 'asc') {
             return $query->select(DB::raw('MIN(' . $column . ')'));
         } else {
