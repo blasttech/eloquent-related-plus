@@ -431,7 +431,7 @@ trait RelatedPlusTrait
     public function scopeOrderByCustom(Builder $query, $orderField, $direction)
     {
         if ($this->fieldsCheck($orderField, $direction)) {
-            $query = $this->removeOrderGlobalScope($query);
+            $query = $this->removeGlobalScope($query, 'order');
         }
 
         return $query->setCustomOrder($orderField, $direction);
@@ -459,17 +459,18 @@ trait RelatedPlusTrait
     }
 
     /**
-     * Remove order global scope if it exists
+     * Remove a global scope if it exists
      *
      * @param Builder $query
+     * @param string $scopeName
      * @return Builder
      */
-    private function removeOrderGlobalScope($query)
+    private function removeGlobalScope($query, $scopeName)
     {
         /** @var Model $this */
         $globalScopes = $this->getGlobalScopes();
-        if (isset($globalScopes['order'])) {
-            $query->withoutGlobalScope('order');
+        if (isset($globalScopes[$scopeName])) {
+            $query->withoutGlobalScope($scopeName);
         }
 
         return $query;
