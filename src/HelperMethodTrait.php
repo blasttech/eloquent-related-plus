@@ -137,6 +137,19 @@ trait HelperMethodTrait
     }
 
     /**
+     * Get table name from column name
+     *
+     * @param string $column
+     * @return string
+     */
+    protected function getTableFromColumn($column)
+    {
+        $periodPos = strpos($column, '.');
+
+        return ($periodPos !== false ? substr($column, 0, $periodPos) : $column);
+    }
+
+    /**
      * Remove a global scope if it exists
      *
      * @param Builder $query
