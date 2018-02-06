@@ -398,31 +398,6 @@ trait RelatedPlusTrait
     }
 
     /**
-     * Join a related table if not already joined
-     *
-     * @param Builder $query
-     * @param string $table
-     * @return Builder
-     */
-    private function joinRelatedTable($query, $table)
-    {
-        if (isset($this->order_relations[$table]) &&
-            !$this->hasJoin($query, $table, $this->order_relations[$table])) {
-            $columnRelations = $this->order_relations[$table];
-
-            $query->modelJoin(
-                $columnRelations,
-                '=',
-                'left',
-                false,
-                false
-            );
-        }
-
-        return $query;
-    }
-
-    /**
      * Switch a query to be a subquery of a model
      *
      * @param Builder $query
