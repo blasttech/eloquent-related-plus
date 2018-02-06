@@ -466,10 +466,9 @@ trait RelatedPlusTrait
         /** @var Model $query */
         $query->orderBy(DB::raw($column), $direction);
 
-        $periodPos = strpos($column, '.');
-        if (isset($this->order_relations) && ($periodPos !== false || isset($this->order_relations[$column]))) {
-            $table = ($periodPos !== false ? substr($column, 0, $periodPos) : $column);
-            $query = $this->joinRelatedTable($query, $table);
+        if (isset($this->order_relations) && (strpos($column,
+                    '.') !== false || isset($this->order_relations[$column]))) {
+            $query = $this->joinRelatedTable($query, $this->getTableFromColumn($column));
         }
 
         return $query;
