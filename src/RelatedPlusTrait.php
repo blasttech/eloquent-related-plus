@@ -35,7 +35,7 @@ trait RelatedPlusTrait
      *
      * @return string
      */
-    abstract function getTable();
+    abstract public function getTable();
 
     /**
      * Boot method for trait
