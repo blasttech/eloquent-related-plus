@@ -150,6 +150,21 @@ trait HelperMethodTrait
     }
 
     /**
+     * Get table name with alias if different to table name
+     *
+     * @param \stdClass $table
+     * @return string
+     */
+    protected function getTableWithAlias($table)
+    {
+        if ($table->alias !== '' && $table->name !== $table->alias) {
+            return $table->name . ' AS ' . $table->alias;
+        } else {
+            return $table->name;
+        }
+    }
+
+    /**
      * Remove a global scope if it exists
      *
      * @param Builder $query

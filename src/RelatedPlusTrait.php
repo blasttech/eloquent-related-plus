@@ -184,11 +184,7 @@ trait RelatedPlusTrait
         $where,
         $direction = null
     ) {
-        if ($table->alias !== '' && $table->name !== $table->alias) {
-            $fullTableName = $table->name . ' AS ' . $table->alias;
-        } else {
-            $fullTableName = $table->name;
-        }
+        $fullTableName = $this->getTableWithAlias($table);
 
         return $query->join($fullTableName, function (JoinClause $join) use (
             $table,
