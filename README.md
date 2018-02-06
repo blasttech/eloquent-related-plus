@@ -20,50 +20,91 @@ $ composer require blasttech/eloquent-related-plus
 ## Usage
 
 To add complex order and search behaviour to your model you must:<br />
-1. specify that the model will conform to ```Blasttech\EloquentRelatedPlus\RelatePlus```<br />
+1. specify that the model will conform to ```Blasttech\EloquentRelatedPlus\RelatedPlusInterface```<br />
 2. use the trait ```Blasttech\EloquentRelatedPlus\RelatedPlusTrait```<br />
-
-### Example
-
-Functions: 
- * modelJoin($relation_name, $operator = '=', $type = 'left', $where = false, $related_select = true)
- * orderByCustom($order_field, $dir, $order_fields = null, $order_defaults = null)
- * orderByWith($order)
- * search($search = '')
- * setSubquery($model)
-
 
 ## modelJoin
 
 Use this scope to add a join for the specified model.
+ * modelJoin($relation_name, $operator = '=', $type = 'left', $where = false, $related_select = true)
 
-Examples:
-```
-$query->modelJoin('Customer', '=', 'left', false, false)
-```
-This will add a left join to the *Customer* model.
+#### Example
 
+```php
+use Blasttech\EloquentRelatedPlus\RelatedPlusInterface;
+use Blasttech\EloquentRelatedPlus\RelatedPlusTrait;
+
+class MyModel extends Eloquent implements RelatedPlusInterface
+{
+    use RelatedPlusTrait;
+    
+    public function getCustomers()
+    {
+        return Customer::select('*')
+            ->modelJoin('Contacts', '=', 'left', false, false)
+            ->get(); 
+    }
+    
+    ...
+}
 ```
-$query->modelJoin('Customer', '=', 'left', true, true)
-```
-This will add a left join to the *Customer* model and use 'where' instead of 'on' and include all the fields from the model in the select.   
+This will add a left join to the *Contacts* model using the Contacts() relation, using 'where' instead of 'on' and include all the fields from the model in the select.   
 
 ## orderByCustom
+ * orderByCustom($order_field, $dir, $order_fields = null, $order_defaults = null)
 
-## orderByWith
+#### Example
+
+```php
+use Blasttech\EloquentRelatedPlus\RelatedPlusInterface;
+use Blasttech\EloquentRelatedPlus\RelatedPlusTrait;
+
+class MyModel extends Eloquent implements RelatedPlusInterface
+{
+    use RelatedPlusTrait;
+    
+    public function getCustomers()
+    {
+        return Customer::select('*')
+            ->modelJoin('Contacts', '=', 'left', false, false)
+            ->orderByCustom('contact_name'); 
+    }
+    
+    ...
+}
+```
+This will add a left join to the *Contacts* model using the Contacts() relation and then sort it by the contact_name.   
 
 ## search
 
-## setSubquery
+#### Example
+
+```php
+use Blasttech\EloquentRelatedPlus\RelatedPlusInterface;
+use Blasttech\EloquentRelatedPlus\RelatedPlusTrait;
+
+class MyModel extends Eloquent implements RelatedPlusInterface
+{
+    use RelatedPlusTrait;
+    
+    public function getContact($contact_name)
+    {
+        return Customer::select('*')
+            ->modelJoin('Contacts', '=', 'left', false, false)
+            ->search($contact_name); 
+    }
+    
+    ...
+}
+```
+This will add a left join to the *Contacts* model using the Contacts() relation, and search for $contact_name.   
 
 
+## License
+
+The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
 
 
-#### Credits
+## Credits
 
-The example shown in 
-http://laravel-tricks.com/tricks/automatic-join-on-eloquent-models-with-relations-setup 
-was used as a basis for the modelJoin and relationJoin scopes.
-
- 
-
+The example shown in http://laravel-tricks.com/tricks/automatic-join-on-eloquent-models-with-relations-setup was used as a basis for the modelJoin and relationJoin scopes.
