@@ -212,13 +212,29 @@ trait RelatedPlusTrait
                 $query->select($this->getTable() . ".*");
             }
             if ($relatedSelect) {
-                foreach (Schema::connection($connection)->getColumnListing($tableName) as $relatedColumn) {
-                    $query->addSelect(
-                        new Expression("`$tableAlias`.`$relatedColumn` AS `$tableAlias.$relatedColumn`")
-                    );
-                }
+                $query = $this->selectRelated($query, $table);
             }
             $query->relationJoin($tableName, $tableAlias, $relation, $operator, $type, $where, $direction);
+        }
+
+        return $query;
+    }
+
+    /**
+     * Add select for related table fields
+     *
+     * @param Builder $query
+     * @param $table
+     * @return Builder
+     */
+    public function selectRelated(Builder $query, $table)
+    {
+        $connection = $this->connection;
+
+        foreach (Schema::connection($connection)->getColumnListing($table->name) as $relatedColumn) {
+            $query->addSelect(
+                new Expression("`$table->alias`.`$relatedColumn` AS `$table->alias.$relatedColumn`")
+            );
         }
 
         return $query;
