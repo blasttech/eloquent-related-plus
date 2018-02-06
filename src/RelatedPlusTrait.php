@@ -35,7 +35,7 @@ trait RelatedPlusTrait
      *
      * @return string
      */
-    abstract function getTable();
+    abstract public function getTable();
 
     /**
      * Boot method for trait
@@ -88,6 +88,7 @@ trait RelatedPlusTrait
             $from = explode(' ', $relation->getQuery()->getQuery()->from);
             $tableAlias = array_pop($from);
 
+            /** @var Model $query */
             if (empty($query->getQuery()->columns)) {
                 $query->select($this->getTable() . ".*");
             }
@@ -288,7 +289,7 @@ trait RelatedPlusTrait
      * @param Builder|JoinClause $builder
      * @param Relation|BelongsTo|HasOneOrMany $relation
      * @param string $table
-     * @return Builder|JoinClause
+     * @return Builder|JoinClause $builder
      */
     protected function addWhereConstraints($builder, $relation, $table)
     {
@@ -349,6 +350,7 @@ trait RelatedPlusTrait
      */
     protected function addOrder($builder, $relation, $table)
     {
+        /** @var Model $builder */
         if (!empty($relation->toBase()->orders)) {
             // Get where clauses from the relationship
             foreach ($relation->toBase()->orders as $order) {
