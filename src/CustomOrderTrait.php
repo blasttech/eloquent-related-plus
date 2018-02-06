@@ -137,4 +137,21 @@ trait CustomOrderTrait
 
         return $query;
     }
+
+    /**
+     * Check if this model has already been joined to a table or relation
+     *
+     * @param Builder $builder
+     * @param string $table
+     * @param \Illuminate\Database\Eloquent\Relations\Relation $relation
+     * @return bool
+     */
+    protected function hasJoin(Builder $builder, $table, $relation)
+    {
+        if (!$this->isJoinedToTable($builder, $table)) {
+            return $this->isEagerLoaded($builder, $relation);
+        } else {
+            return true;
+        }
+    }
 }
