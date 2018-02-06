@@ -284,18 +284,16 @@ trait RelatedPlusTrait
      */
     private function toSqlWithBindings(Builder $builder)
     {
-        return vsprintf($this->replacePlaceholders($builder), array_map('addslashes', $builder->getBindings()));
-    }
+        $replacements = array_map('addslashes', $builder->getBindings());
+        $sql = $builder->toSql();
 
-    /**
-     * Replace SQL placeholders with '%s'
-     *
-     * @param Builder $builder
-     * @return string
-     */
-    private function replacePlaceholders(Builder $builder)
-    {
-        return str_replace(['?'], ['\'%s\''], $builder->toSql());
+        return preg_replace_callback(
+            '/(\?)(?=(?:[^\'"]|["\'][^\'"]*["\'])*$)/',
+            function ($matches) use (&$replacements) {
+                return array_shift($replacements);
+            },
+            $sql
+        );
     }
 
     /**
