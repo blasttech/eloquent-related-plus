@@ -65,46 +65,6 @@ trait CustomOrderTrait
     }
 
     /**
-     * Check if column being sorted by is from a related model
-     *
-     * @param Builder $query
-     * @param string $column
-     * @param string $direction
-     * @return Builder
-     */
-    public function scopeOrderByCheckModel(Builder $query, $column, $direction)
-    {
-        /** @var Model $query */
-        $query->orderBy(DB::raw($column), $direction);
-
-        $periodPos = strpos($column, '.');
-        if (isset($this->order_relations) && ($periodPos !== false || isset($this->order_relations[$column]))) {
-            $table = ($periodPos !== false ? substr($column, 0, $periodPos) : $column);
-            $query = $this->joinRelatedTable($query, $table);
-        }
-
-        return $query;
-    }
-
-    /**
-     * Set the model order
-     *
-     * @param Builder $query
-     * @param string $column
-     * @param string $direction
-     * @return Builder
-     */
-    public function scopeSetCustomOrder(Builder $query, $column, $direction)
-    {
-        if (isset($this->order_defaults)) {
-            $column = $this->setColumn($column);
-            $direction = $this->setDirection($direction);
-        }
-
-        return $this->setOrder($query, $column, $direction);
-    }
-
-    /**
      * Override column if provided column not valid
      *
      * @param string $column

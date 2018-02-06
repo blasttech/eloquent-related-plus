@@ -434,4 +434,44 @@ trait RelatedPlusTrait
 
         return $join;
     }
+
+    /**
+     * Set the model order
+     *
+     * @param Builder $query
+     * @param string $column
+     * @param string $direction
+     * @return Builder
+     */
+    public function scopeSetCustomOrder(Builder $query, $column, $direction)
+    {
+        if (isset($this->order_defaults)) {
+            $column = $this->setOrderColumn($column);
+            $direction = $this->setOrderDirection($direction);
+        }
+
+        return $this->setOrder($query, $column, $direction);
+    }
+
+    /**
+     * Check if column being sorted by is from a related model
+     *
+     * @param Builder $query
+     * @param string $column
+     * @param string $direction
+     * @return Builder
+     */
+    public function scopeOrderByCheckModel(Builder $query, $column, $direction)
+    {
+        /** @var Model $query */
+        $query->orderBy(DB::raw($column), $direction);
+
+        $periodPos = strpos($column, '.');
+        if (isset($this->order_relations) && ($periodPos !== false || isset($this->order_relations[$column]))) {
+            $table = ($periodPos !== false ? substr($column, 0, $periodPos) : $column);
+            $query = $this->joinRelatedTable($query, $table);
+        }
+
+        return $query;
+    }
 }
