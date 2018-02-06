@@ -21,6 +21,28 @@ trait CustomOrderTrait
     use HelperMethodTrait, RelatedPlusTrait;
 
     /**
+     * Check if column being sorted by is from a related model
+     *
+     * @param Builder $query
+     * @param string $column
+     * @param string $direction
+     * @return Builder
+     */
+    public function scopeOrderByCheckModel(Builder $query, $column, $direction)
+    {
+        /** @var Model $query */
+        $query->orderBy(DB::raw($column), $direction);
+
+        $periodPos = strpos($column, '.');
+        if (isset($this->order_relations) && ($periodPos !== false || isset($this->order_relations[$column]))) {
+            $table = ($periodPos !== false ? substr($column, 0, $periodPos) : $column);
+            $query = $this->joinRelatedTable($query, $table);
+        }
+
+        return $query;
+    }
+
+    /**
      * Set the model order
      *
      * @param Builder $query
@@ -86,28 +108,6 @@ trait CustomOrderTrait
             foreach ($this->order_fields[$column] as $dbField) {
                 $query->orderByCheckModel($dbField, $direction);
             }
-        }
-
-        return $query;
-    }
-
-    /**
-     * Check if column being sorted by is from a related model
-     *
-     * @param Builder $query
-     * @param string $column
-     * @param string $direction
-     * @return Builder
-     */
-    public function scopeOrderByCheckModel(Builder $query, $column, $direction)
-    {
-        /** @var Model $query */
-        $query->orderBy(DB::raw($column), $direction);
-
-        $periodPos = strpos($column, '.');
-        if (isset($this->order_relations) && ($periodPos !== false || isset($this->order_relations[$column]))) {
-            $table = ($periodPos !== false ? substr($column, 0, $periodPos) : $column);
-            $query = $this->joinRelatedTable($query, $table);
         }
 
         return $query;

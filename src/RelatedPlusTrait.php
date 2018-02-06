@@ -29,11 +29,50 @@ trait RelatedPlusTrait
     use CustomOrderTrait, HelperMethodTrait;
 
     /**
-     * Get the table associated with the model.
+     * Add orderBy if orders exist for a relation
      *
-     * @return string
+     * @param Builder|JoinClause $builder
+     * @param Relation|BelongsTo|HasOneOrMany $relation
+     * @param string $table
+     * @return Builder|JoinClause $builder
      */
-    abstract public function getTable();
+    protected function addOrder($builder, $relation, $table)
+    {
+        /** @var Model $builder */
+        if (!empty($relation->toBase()->orders)) {
+            // Get where clauses from the relationship
+            foreach ($relation->toBase()->orders as $order) {
+                $builder->orderBy($this->columnWithTableName($table, $order['column']), $order['direction']);
+            }
+        }
+
+        return $builder;
+    }
+
+    /**
+     * Add wheres if they exist for a relation
+     *
+     * @param Builder|JoinClause $builder
+     * @param Relation|BelongsTo|HasOneOrMany $relation
+     * @param string $table
+     * @return Builder|JoinClause $builder
+     */
+    protected function addWhereConstraints($builder, $relation, $table)
+    {
+        // Get where clauses from the relationship
+        $wheres = collect($relation->toBase()->wheres)
+            ->where('type', 'Basic')
+            ->map(function ($where) use ($table) {
+                // Add table name to column if it is absent
+                return [$this->columnWithTableName($table, $where['column']), $where['operator'], $where['value']];
+            })->toArray();
+
+        if (!empty($wheres)) {
+            $builder->where($wheres);
+        }
+
+        return $builder;
+    }
 
     /**
      * Boot method for trait
@@ -50,6 +89,88 @@ trait RelatedPlusTrait
                 }
             }
         });
+    }
+
+    /**
+     * Get the table associated with the model.
+     *
+     * @return string
+     */
+    abstract public function getTable();
+
+    /**
+     * If the relation is one-to-many, just get the first related record
+     *
+     * @param JoinClause $joinClause
+     * @param string $column
+     * @param HasMany|Relation $relation
+     * @param string $table
+     * @param string $direction
+     *
+     * @return JoinClause
+     */
+    public function hasManyJoinWhere(JoinClause $joinClause, $column, $relation, $table, $direction)
+    {
+        return $joinClause->where(
+            $column,
+            function ($subQuery) use ($table, $direction, $relation, $column) {
+                $subQuery = $this->joinOne(
+                    $subQuery->from($table),
+                    $relation,
+                    $column,
+                    $direction
+                );
+
+                // Add any where statements with the relationship
+                $subQuery = $this->addWhereConstraints($subQuery, $relation, $table);
+
+                // Add any order statements with the relationship
+                return $this->addOrder($subQuery, $relation, $table);
+            }
+        );
+    }
+
+    /**
+     * Get join sql for a HasOne relation
+     *
+     * @param Relation $relation
+     * @param array $order
+     * @return Expression
+     */
+    public function hasOneJoinSql($relation, $order)
+    {
+        // Build subquery for getting first/last record in related table
+        $subQuery = $this
+            ->joinOne(
+                $relation->getRelated()->newQuery(),
+                $relation,
+                $order['column'],
+                $order['direction']
+            )
+            ->setBindings($relation->getBindings());
+
+        return DB::raw('(' . $this->toSqlWithBindings($subQuery) . ')');
+    }
+
+    /**
+     * Adds a where for a relation's join columns and and min/max for a given column
+     *
+     * @param Builder $query
+     * @param Relation $relation
+     * @param string $column
+     * @param string $direction
+     * @return Builder
+     */
+    public function joinOne($query, $relation, $column, $direction)
+    {
+        // Get join fields
+        $joinColumns = $this->getJoinColumns($relation);
+
+        return $this->selectMinMax(
+            $query->whereColumn($joinColumns->first, '=', $joinColumns->second),
+            $column,
+            $direction
+        );
     }
 
     /**
@@ -104,6 +225,55 @@ trait RelatedPlusTrait
     }
 
     /**
+     * Set the order of a model
+     *
+     * @param Builder $query
+     * @param string $orderField
+     * @param string $direction
+     * @return Builder
+     */
+    public function scopeOrderByCustom(Builder $query, $orderField, $direction)
+    {
+        if ($this->hasFieldsAndDefaults($orderField, $direction)) {
+            $query = $this->removeGlobalScope($query, 'order');
+        }
+
+        return $query->setCustomOrder($orderField, $direction);
+    }
+
+    /**
+     * Use a model method to add columns or joins if in the order options
+     *
+     * @param Builder $query
+     * @param string $order
+     * @return Builder
+     */
+    public function scopeOrderByWith(Builder $query, $order)
+    {
+        if (isset($this->order_with[$order])) {
+            $with = 'with' . $this->order_with[$order];
+
+            $query->$with();
+        }
+
+        if (isset($this->order_fields[$order])) {
+            $orderOption = (explode('.', $this->order_fields[$order]))[0];
+
+            if (isset($this->order_relations[$orderOption])) {
+                $query->modelJoin(
+                    $this->order_relations[$orderOption],
+                    '=',
+                    'left',
+                    false,
+                    false
+                );
+            }
+        }
+
+        return $query;
+    }
+
+    /**
      * Join a model
      *
      * @param Builder $query
@@ -149,60 +319,64 @@ trait RelatedPlusTrait
     }
 
     /**
-     * Join a HasOne relation which is ordered
-     *
-     * @param Relation $relation
-     * @param JoinClause $join
-     * @return JoinClause
-     */
-    private function hasOneJoin($relation, $join)
-    {
-        // Get first relation order (should only be one)
-        $order = $relation->toBase()->orders[0];
-
-        return $join->on($order['column'], $this->hasOneJoinSql($relation, $order));
-    }
-
-    /**
-     * Get join sql for a HasOne relation
-     *
-     * @param Relation $relation
-     * @param array $order
-     * @return Expression
-     */
-    public function hasOneJoinSql($relation, $order)
-    {
-        // Build subquery for getting first/last record in related table
-        $subQuery = $this
-            ->joinOne(
-                $relation->getRelated()->newQuery(),
-                $relation,
-                $order['column'],
-                $order['direction']
-            )
-            ->setBindings($relation->getBindings());
-
-        return DB::raw('(' . $this->toSqlWithBindings($subQuery) . ')');
-    }
-
-    /**
-     * Adds a where for a relation's join columns and and min/max for a given column
+     * Add where statements for the model search fields
      *
      * @param Builder $query
-     * @param Relation $relation
-     * @param string $column
-     * @param string $direction
+     * @param string $searchText
      * @return Builder
      */
-    public function joinOne($query, $relation, $column, $direction)
+    public function scopeSearch(Builder $query, $searchText = '')
     {
-        // Get join fields
-        $joinColumns = $this->getJoinColumns($relation);
+        $searchText = trim($searchText);
 
-        return $this->selectMinMax(
-            $query->whereColumn($joinColumns->first, '=', $joinColumns->second),
-            $column,
-            $direction
+        // If search is set
+        if ($searchText != "") {
+            if (!isset($this->search_fields) || !is_array($this->search_fields) || empty($this->search_fields)) {
+                throw new InvalidArgumentException(get_class($this) . ' search properties not set correctly.');
+            } else {
+                $query = $this->checkSearchFields($query, $searchText);
+            }
+        }
+
+        return $query;
+    }
+
+    /**
+     * Switch a query to be a subquery of a model
+     *
+     * @param Builder $query
+     * @param Builder $model
+     * @return Builder
+     */
+    public function scopeSetSubquery(Builder $query, $model)
+    {
+        $sql = $this->toSqlWithBindings($model);
+        $table = $model->getQuery()->from;
+
+        return $query
+            ->from(DB::raw("({$sql}) as " . $table))
+            ->select($table . '.*');
+    }
+
+    /**
+     * Add where condition to search current model
+     *
+     * @param Builder $query
+     * @param array $searchFieldParameters
+     * @param string $table
+     * @param string $searchColumn
+     * @param string $searchText
+     * @return Builder
+     */
+    public function searchThis(Builder $query, $searchFieldParameters, $table, $searchColumn, $searchText)
+    {
+        $searchOperator = $searchFieldParameters['operator'] ?? 'like';
+        $searchValue = $searchFieldParameters['value'] ?? '%{{search}}%';
+
+        return $query->orWhere(
+            $table . '.' . $searchColumn,
+            $searchOperator,
+            str_replace('{{search}}', $searchText, $searchValue)
         );
     }
 
@@ -224,6 +398,21 @@ trait RelatedPlusTrait
         } else {
             return $query->select(DB::raw('MAX(' . $column . ')'));
         }
+    }
+
+    /**
+     * Join a HasOne relation which is ordered
+     *
+     * @param Relation $relation
+     * @param JoinClause $join
+     * @return JoinClause
+     */
+    private function hasOneJoin($relation, $join)
+    {
+        // Get first relation order (should only be one)
+        $order = $relation->toBase()->orders[0];
+
+        return $join->on($order['column'], $this->hasOneJoinSql($relation, $order));
     }
 
     /**
@@ -262,101 +451,6 @@ trait RelatedPlusTrait
     }
 
     /**
-     * Add wheres if they exist for a relation
-     *
-     * @param Builder|JoinClause $builder
-     * @param Relation|BelongsTo|HasOneOrMany $relation
-     * @param string $table
-     * @return Builder|JoinClause $builder
-     */
-    protected function addWhereConstraints($builder, $relation, $table)
-    {
-        // Get where clauses from the relationship
-        $wheres = collect($relation->toBase()->wheres)
-            ->where('type', 'Basic')
-            ->map(function ($where) use ($table) {
-                // Add table name to column if it is absent
-                return [$this->columnWithTableName($table, $where['column']), $where['operator'], $where['value']];
-            })->toArray();
-
-        if (!empty($wheres)) {
-            $builder->where($wheres);
-        }
-
-        return $builder;
-    }
-
-    /**
-     * If the relation is one-to-many, just get the first related record
-     *
-     * @param JoinClause $joinClause
-     * @param string $column
-     * @param HasMany|Relation $relation
-     * @param string $table
-     * @param string $direction
-     *
-     * @return JoinClause
-     */
-    public function hasManyJoinWhere(JoinClause $joinClause, $column, $relation, $table, $direction)
-    {
-        return $joinClause->where(
-            $column,
-            function ($subQuery) use ($table, $direction, $relation, $column) {
-                $subQuery = $this->joinOne(
-                    $subQuery->from($table),
-                    $relation,
-                    $column,
-                    $direction
-                );
-
-                // Add any where statements with the relationship
-                $subQuery = $this->addWhereConstraints($subQuery, $relation, $table);
-
-                // Add any order statements with the relationship
-                return $this->addOrder($subQuery, $relation, $table);
-            }
-        );
-    }
-
-    /**
-     * Add orderBy if orders exist for a relation
-     *
-     * @param Builder|JoinClause $builder
-     * @param Relation|BelongsTo|HasOneOrMany $relation
-     * @param string $table
-     * @return Builder|JoinClause $builder
-     */
-    protected function addOrder($builder, $relation, $table)
-    {
-        /** @var Model $builder */
-        if (!empty($relation->toBase()->orders)) {
-            // Get where clauses from the relationship
-            foreach ($relation->toBase()->orders as $order) {
-                $builder->orderBy($this->columnWithTableName($table, $order['column']), $order['direction']);
-            }
-        }
-
-        return $builder;
-    }
-
-    /**
-     * Set the order of a model
-     *
-     * @param Builder $query
-     * @param string $orderField
-     * @param string $direction
-     * @return Builder
-     */
-    public function scopeOrderByCustom(Builder $query, $orderField, $direction)
-    {
-        if ($this->hasFieldsAndDefaults($orderField, $direction)) {
-            $query = $this->removeGlobalScope($query, 'order');
-        }
-
-        return $query->setCustomOrder($orderField, $direction);
-    }
-
-    /**
      * Check $order_fields and $order_defaults are set
      *
      * @param string $orderField
@@ -375,78 +469,6 @@ trait RelatedPlusTrait
                 return true;
             }
         }
-    }
-
-    /**
-     * Switch a query to be a subquery of a model
-     *
-     * @param Builder $query
-     * @param Builder $model
-     * @return Builder
-     */
-    public function scopeSetSubquery(Builder $query, $model)
-    {
-        $sql = $this->toSqlWithBindings($model);
-        $table = $model->getQuery()->from;
-
-        return $query
-            ->from(DB::raw("({$sql}) as " . $table))
-            ->select($table . '.*');
-    }
-
-    /**
-     * Use a model method to add columns or joins if in the order options
-     *
-     * @param Builder $query
-     * @param string $order
-     * @return Builder
-     */
-    public function scopeOrderByWith(Builder $query, $order)
-    {
-        if (isset($this->order_with[$order])) {
-            $with = 'with' . $this->order_with[$order];
-
-            $query->$with();
-        }
-
-        if (isset($this->order_fields[$order])) {
-            $orderOption = (explode('.', $this->order_fields[$order]))[0];
-
-            if (isset($this->order_relations[$orderOption])) {
-                $query->modelJoin(
-                    $this->order_relations[$orderOption],
-                    '=',
-                    'left',
-                    false,
-                    false
-                );
-            }
-        }
-
-        return $query;
-    }
-
-    /**
-     * Add where statements for the model search fields
-     *
-     * @param Builder $query
-     * @param string $searchText
-     * @return Builder
-     */
-    public function scopeSearch(Builder $query, $searchText = '')
-    {
-        $searchText = trim($searchText);
-
-        // If search is set
-        if ($searchText != "") {
-            if (!isset($this->search_fields) || !is_array($this->search_fields) || empty($this->search_fields)) {
-                throw new InvalidArgumentException(get_class($this) . ' search properties not set correctly.');
-            } else {
-                $query = $this->checkSearchFields($query, $searchText);
-            }
-        }
-
-        return $query;
     }
 
     /**
@@ -526,27 +548,5 @@ trait RelatedPlusTrait
                 return $query2->where($relatedTable . '.' . $searchColumn, 'like', $searchText . '%');
             });
         });
-    }
-
-    /**
-     * Add where condition to search current model
-     *
-     * @param Builder $query
-     * @param array $searchFieldParameters
-     * @param string $table
-     * @param string $searchColumn
-     * @param string $searchText
-     * @return Builder
-     */
-    public function searchThis(Builder $query, $searchFieldParameters, $table, $searchColumn, $searchText)
-    {
-        $searchOperator = $searchFieldParameters['operator'] ?? 'like';
-        $searchValue = $searchFieldParameters['value'] ?? '%{{search}}%';
-
-        return $query->orWhere(
-            $table . '.' . $searchColumn,
-            $searchOperator,
-            str_replace('{{search}}', $searchText, $searchValue)
-        );
     }
 }
