@@ -207,26 +207,6 @@ trait RelatedPlusTrait
     }
 
     /**
-     * Get the join columns for a relation
-     *
-     * @param Relation|BelongsTo|HasOneOrMany $relation
-     * @return \stdClass
-     */
-    protected function getJoinColumns($relation)
-    {
-        // Get keys with table names
-        if ($relation instanceof BelongsTo) {
-            $first = $relation->getOwnerKey();
-            $second = $relation->getForeignKey();
-        } else {
-            $first = $relation->getQualifiedParentKeyName();
-            $second = $relation->getQualifiedForeignKeyName();
-        }
-
-        return (object)['first' => $first, 'second' => $second];
-    }
-
-    /**
      * Adds a select for a min or max on the given column, depending on direction given
      *
      * @param Builder $query
