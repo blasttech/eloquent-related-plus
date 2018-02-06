@@ -66,7 +66,7 @@ trait CustomOrderTrait
      * @param string $column
      * @return string
      */
-    private function setColumn($column)
+    protected function setOrderColumn($column)
     {
         // If $column not in order_fields list, use default
         if ($column == '' || !isset($this->order_fields[$column])) {
@@ -82,7 +82,7 @@ trait CustomOrderTrait
      * @param string $direction
      * @return string
      */
-    private function setDirection($direction)
+    protected function setOrderDirection($direction)
     {
         // If $direction not asc or desc, use default
         if ($direction == '' || !in_array(strtoupper($direction), ['ASC', 'DESC'])) {
