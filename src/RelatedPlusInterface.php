@@ -10,7 +10,7 @@ use Illuminate\Database\Query\JoinClause;
  *
  * @package Blasttech\RelatedPlus
  */
-interface RelatedPlus
+interface RelatedPlusInterface
 {
     /**
      * This determines the foreign key relations automatically to prevent the need to figure out the columns.

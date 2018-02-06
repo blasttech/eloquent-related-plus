@@ -3,11 +3,11 @@
 namespace Blasttech\EloquentRelatedPlus\Test;
 
 use Illuminate\Database\Eloquent\Model;
-use Blasttech\EloquentRelatedPlus\RelatedPlus;
+use Blasttech\EloquentRelatedPlus\RelatedPlusInterface;
 use Blasttech\EloquentRelatedPlus\RelatedPlusTrait;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class DummyWithSoftDeletes extends Model implements RelatedPlus
+class DummyWithSoftDeletes extends Model implements RelatedPlusInterface
 {
     use SoftDeletes, RelatedPlusTrait;
 

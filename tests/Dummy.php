@@ -3,10 +3,10 @@
 namespace Blasttech\EloquentRelatedPlus\Test;
 
 use Illuminate\Database\Eloquent\Model;
-use Blasttech\EloquentRelatedPlus\RelatedPlus;
+use Blasttech\EloquentRelatedPlus\RelatedPlusInterface;
 use Blasttech\EloquentRelatedPlus\RelatedPlusTrait;
 
-class Dummy extends Model implements RelatedPlus
+class Dummy extends Model implements RelatedPlusInterface
 {
     use RelatedPlusTrait;
 
