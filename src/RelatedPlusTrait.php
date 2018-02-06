@@ -411,7 +411,7 @@ trait RelatedPlusTrait
      * @param string $direction
      * @return Builder|JoinClause
      */
-    private function hasManyJoin($relation, $join, $table, $operator, $direction)
+    protected function hasManyJoin($relation, $join, $table, $operator, $direction)
     {
         // Get relation join columns
         $joinColumns = $this->getJoinColumns($relation);

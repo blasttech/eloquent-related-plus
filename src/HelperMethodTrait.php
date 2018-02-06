@@ -27,7 +27,7 @@ trait HelperMethodTrait
      * @param Relation $relation
      * @return \stdClass
      */
-    public function getRelationTables($relation)
+    protected function getRelationTables($relation)
     {
         $table = new \stdClass();
         $table->name = $relation->getRelated()->getTable();
@@ -44,7 +44,7 @@ trait HelperMethodTrait
      * @param Relation|BelongsTo|HasOneOrMany $relation
      * @return \stdClass
      */
-    private function getJoinColumns($relation)
+    protected function getJoinColumns($relation)
     {
         // Get keys with table names
         if ($relation instanceof BelongsTo) {
@@ -68,7 +68,7 @@ trait HelperMethodTrait
      * @param string $relationName
      * @return Relation[]
      */
-    private function parseRelationNames($relationName)
+    protected function parseRelationNames($relationName)
     {
         $relationNames = explode('.', $relationName);
         $parentRelationName = null;
@@ -92,7 +92,7 @@ trait HelperMethodTrait
      * @param string $column
      * @return string
      */
-    private function addBackticks($column)
+    protected function addBackticks($column)
     {
         return preg_match('/^[0-9a-zA-Z\.]*$/', $column) ?
             '`' . str_replace(['`', '.'], ['', '`.`'], $column) . '`' : $column;
@@ -104,7 +104,7 @@ trait HelperMethodTrait
      * @param Builder $builder
      * @return string
      */
-    private function toSqlWithBindings(Builder $builder)
+    protected function toSqlWithBindings(Builder $builder)
     {
         $replacements = array_map('addslashes', $builder->getBindings());
         $sql = $builder->toSql();
@@ -131,7 +131,7 @@ trait HelperMethodTrait
      * @param string $column
      * @return string
      */
-    private function columnWithTableName($table, $column)
+    protected function columnWithTableName($table, $column)
     {
         return (preg_match('/(' . $table . '\.|`' . $table . '`)/i', $column) > 0 ? '' : $table . '.') . $column;
     }
@@ -143,7 +143,7 @@ trait HelperMethodTrait
      * @param string $scopeName
      * @return Builder
      */
-    private function removeGlobalScope($query, $scopeName)
+    protected function removeGlobalScope($query, $scopeName)
     {
         /** @var Model $this */
         $globalScopes = $this->getGlobalScopes();
@@ -162,7 +162,7 @@ trait HelperMethodTrait
      * @param \Illuminate\Database\Eloquent\Relations\Relation $relation
      * @return bool
      */
-    private function hasJoin(Builder $builder, $table, $relation)
+    protected function hasJoin(Builder $builder, $table, $relation)
     {
         if (!$this->isJoinedToTable($builder, $table)) {
             return $this->isEagerLoaded($builder, $relation);
@@ -199,7 +199,7 @@ trait HelperMethodTrait
      * @param \Illuminate\Database\Eloquent\Relations\Relation $relation
      * @return bool
      */
-    private function isEagerLoaded(Builder $builder, $relation)
+    protected function isEagerLoaded(Builder $builder, $relation)
     {
         $eagerLoads = $builder->getEagerLoads();
 

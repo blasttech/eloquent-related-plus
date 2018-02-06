@@ -24,7 +24,7 @@ trait CustomOrderTrait
      * @param string $direction
      * @return bool
      */
-    private function hasOrderFieldsAndDefaults($orderField, $direction)
+    protected function hasOrderFieldsAndDefaults($orderField, $direction)
     {
         return $this->hasOrderFields() && $this->hasOrderDefaults($orderField, $direction);
     }
@@ -34,7 +34,7 @@ trait CustomOrderTrait
      *
      * @return bool
      */
-    private function hasOrderFields()
+    protected function hasOrderFields()
     {
         if (!isset($this->order_fields) || !is_array($this->order_fields)) {
             throw new InvalidArgumentException(get_class($this) . ' order fields not set correctly.');
@@ -50,7 +50,7 @@ trait CustomOrderTrait
      * @param string $direction
      * @return bool
      */
-    private function hasOrderDefaults($orderField, $direction)
+    protected function hasOrderDefaults($orderField, $direction)
     {
         if (($orderField === '' || $direction === '')
             && (!isset($this->order_defaults) || !is_array($this->order_defaults))) {
@@ -100,7 +100,7 @@ trait CustomOrderTrait
      * @param string $direction
      * @return Builder
      */
-    private function setOrder($query, $column, $direction)
+    protected function setOrder($query, $column, $direction)
     {
         if (!is_array($this->order_fields[$column])) {
             $query->orderByCheckModel($this->order_fields[$column], $direction);
@@ -120,7 +120,7 @@ trait CustomOrderTrait
      * @param string $table
      * @return Builder
      */
-    private function joinRelatedTable($query, $table)
+    protected function joinRelatedTable($query, $table)
     {
         if (isset($this->order_relations[$table]) &&
             !$this->hasJoin($query, $table, $this->order_relations[$table])) {

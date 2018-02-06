@@ -107,19 +107,6 @@ interface RelatedPlusInterface
     public function scopeOrderByWith(Builder $query, $order);
 
     /**
-     * If the relation is one-to-many, just get the first related record
-     *
-     * @param \Illuminate\Database\Eloquent\Relations\HasMany|\Illuminate\Database\Eloquent\Relations\Relation $relation
-     * @param JoinClause $join
-     * @param string $column
-     * @param string $table
-     * @param string $direction
-     *
-     * @return JoinClause
-     */
-    public function hasManyJoin($relation, $join, $column, $table, $direction);
-
-    /**
      * Add where statements for the model search fields
      *
      * @param Builder $query

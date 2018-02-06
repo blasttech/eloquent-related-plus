@@ -24,7 +24,7 @@ trait SearchTrait
      * @param string $searchText
      * @return Builder
      */
-    private function checkSearchFields($query, $searchText)
+    protected function checkSearchFields($query, $searchText)
     {
         return $query->where(function (Builder $query) use ($searchText) {
             if (isset($this->search_fields) && !empty($this->search_fields)) {
@@ -49,7 +49,7 @@ trait SearchTrait
      * @param string $searchText
      * @return Builder
      */
-    private function checkSearchField($query, $table, $searchField, $searchFieldParameters, $searchText)
+    protected function checkSearchField($query, $table, $searchField, $searchFieldParameters, $searchText)
     {
         if (!isset($searchFieldParameters['regex']) || preg_match($searchFieldParameters['regex'], $searchText)) {
             $searchColumn = is_array($searchFieldParameters) ? $searchField : $searchFieldParameters;
@@ -73,7 +73,7 @@ trait SearchTrait
      * @param string $searchText
      * @return Builder
      */
-    private function searchRelation(Builder $query, $searchFieldParameters, $searchColumn, $searchText)
+    protected function searchRelation(Builder $query, $searchFieldParameters, $searchColumn, $searchText)
     {
         $relation = $searchFieldParameters['relation'];
         $relatedTable = $this->$relation()->getRelated()->getTable();
@@ -106,7 +106,7 @@ trait SearchTrait
      * @param string $searchText
      * @return Builder
      */
-    public function searchThis(Builder $query, $searchFieldParameters, $table, $searchColumn, $searchText)
+    protected function searchThis(Builder $query, $searchFieldParameters, $table, $searchColumn, $searchText)
     {
         $searchOperator = $searchFieldParameters['operator'] ?? 'like';
         $searchValue = $searchFieldParameters['value'] ?? '%{{search}}%';
