@@ -324,7 +324,7 @@ trait RelatedPlusTrait
      * @param Builder|JoinClause $builder
      * @param Relation|BelongsTo|HasOneOrMany $relation
      * @param string $table
-     * @return Builder
+     * @return Builder|JoinClause $builder
      */
     protected function addOrder($builder, $relation, $table)
     {

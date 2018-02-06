@@ -2,6 +2,7 @@
 
 namespace Blasttech\EloquentRelatedPlus;
 
+use DB;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
@@ -17,6 +18,8 @@ use Illuminate\Database\Eloquent\Model;
  */
 trait CustomOrderTrait
 {
+    use HelperMethodTrait, RelatedPlusTrait;
+
     /**
      * Set the model order
      *
