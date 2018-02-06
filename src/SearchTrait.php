@@ -5,6 +5,16 @@ namespace Blasttech\EloquentRelatedPlus;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Trait SearchTrait
+ *
+ * @property array order_fields
+ * @property array order_defaults
+ * @property array order_relations
+ * @property array order_with
+ * @property array search_fields
+ * @property string connection
+ */
 trait SearchTrait
 {
     use RelatedPlusTrait;

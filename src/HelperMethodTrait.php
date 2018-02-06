@@ -8,6 +8,16 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOneOrMany;
 use Illuminate\Database\Eloquent\Relations\Relation;
 
+/**
+ * Trait HelperMethodTrait
+ *
+ * @property array order_fields
+ * @property array order_defaults
+ * @property array order_relations
+ * @property array order_with
+ * @property array search_fields
+ * @property string connection
+ */
 trait HelperMethodTrait
 {
 

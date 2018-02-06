@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use InvalidArgumentException;
 
 /**
- * Trait RelatedPlusTrait
+ * Trait CustomOrderTrait
  *
  * @property array order_fields
  * @property array order_defaults
