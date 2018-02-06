@@ -360,7 +360,7 @@ trait RelatedPlusTrait
      */
     public function scopeOrderByCustom(Builder $query, $orderField, $direction)
     {
-        if ($this->fieldsCheck($orderField, $direction)) {
+        if ($this->hasFieldsAndDefaults($orderField, $direction)) {
             $query = $this->removeGlobalScope($query, 'order');
         }
 
@@ -374,7 +374,7 @@ trait RelatedPlusTrait
      * @param $direction
      * @return bool
      */
-    private function fieldsCheck($orderField, $direction)
+    private function hasFieldsAndDefaults($orderField, $direction)
     {
         if (!isset($this->order_fields) || !is_array($this->order_fields)) {
             throw new InvalidArgumentException(get_class($this) . ' order fields not set correctly.');
