@@ -164,7 +164,7 @@ trait HelperMethodTrait
      */
     private function hasJoin(Builder $builder, $table, $relation)
     {
-        if (!$this->isJoined($builder, $table)) {
+        if (!$this->isJoinedToTable($builder, $table)) {
             return $this->isEagerLoaded($builder, $relation);
         } else {
             return true;
@@ -178,7 +178,7 @@ trait HelperMethodTrait
      * @param string $table
      * @return bool
      */
-    private function isJoined(Builder $builder, $table)
+    protected function isJoinedToTable(Builder $builder, $table)
     {
         $joins = $builder->getQuery()->joins;
         if (!is_null($joins)) {
