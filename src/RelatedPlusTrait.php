@@ -371,7 +371,7 @@ trait RelatedPlusTrait
     /**
      * If the relation is one-to-many, just get the first related record
      *
-     * @param Builder|JoinClause $joinClause
+     * @param JoinClause $joinClause
      * @param string $column
      * @param HasMany|Relation $relation
      * @param string $table
@@ -440,8 +440,8 @@ trait RelatedPlusTrait
     /**
      * Check $order_fields and $order_defaults are set
      *
-     * @param $orderField
-     * @param $direction
+     * @param string $orderField
+     * @param string $direction
      * @return bool
      */
     private function fieldsCheck($orderField, $direction)
@@ -594,7 +594,7 @@ trait RelatedPlusTrait
     /**
      * Override column if provided column not valid
      *
-     * @param $column
+     * @param string $column
      * @return string
      */
     private function setColumn($column)
