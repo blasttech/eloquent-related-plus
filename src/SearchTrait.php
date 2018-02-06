@@ -17,8 +17,6 @@ use Illuminate\Database\Eloquent\Model;
  */
 trait SearchTrait
 {
-    use RelatedPlusTrait;
-
     /**
      * Add where statements for search fields to search for searchText
      *

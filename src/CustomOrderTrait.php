@@ -2,9 +2,7 @@
 
 namespace Blasttech\EloquentRelatedPlus;
 
-use DB;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
 use InvalidArgumentException;
 
 /**
@@ -19,8 +17,6 @@ use InvalidArgumentException;
  */
 trait CustomOrderTrait
 {
-    use HelperMethodTrait, RelatedPlusTrait;
-
     /**
      * Check $order_fields and $order_defaults are set
      *
