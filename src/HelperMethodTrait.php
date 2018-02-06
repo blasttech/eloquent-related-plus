@@ -109,6 +109,12 @@ trait HelperMethodTrait
         $replacements = array_map('addslashes', $builder->getBindings());
         $sql = $builder->toSql();
 
+        foreach ($replacements as &$replacement) {
+            if (!is_numeric($replacement)) {
+                $replacement = '"' . $replacement . '"';
+            }
+        }
+
         return preg_replace_callback(
             '/(\?)(?=(?:[^\'"]|["\'][^\'"]*["\'])*$)/',
             function () use (&$replacements) {
