@@ -370,7 +370,7 @@ trait RelatedPlusTrait
      * Add select for related table fields
      *
      * @param Builder $query
-     * @param $table
+     * @param \stdClass $table
      * @return Builder
      */
     public function selectRelated(Builder $query, $table)
@@ -434,5 +434,4 @@ trait RelatedPlusTrait
 
         return $join;
     }
-
 }
