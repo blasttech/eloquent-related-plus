@@ -3,7 +3,6 @@
 namespace Blasttech\EloquentRelatedPlus;
 
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Query\JoinClause;
 
 /**
  * Interface RelatedPlus

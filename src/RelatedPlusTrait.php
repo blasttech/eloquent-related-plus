@@ -29,52 +29,6 @@ trait RelatedPlusTrait
     use CustomOrderTrait, HelperMethodTrait, SearchTrait;
 
     /**
-     * Add orderBy if orders exist for a relation
-     *
-     * @param Builder|JoinClause $builder
-     * @param Relation|BelongsTo|HasOneOrMany $relation
-     * @param string $table
-     * @return Builder|JoinClause $builder
-     */
-    protected function addOrder($builder, $relation, $table)
-    {
-        /** @var Model $builder */
-        if (!empty($relation->toBase()->orders)) {
-            // Get where clauses from the relationship
-            foreach ($relation->toBase()->orders as $order) {
-                $builder->orderBy($this->columnWithTableName($table, $order['column']), $order['direction']);
-            }
-        }
-
-        return $builder;
-    }
-
-    /**
-     * Add wheres if they exist for a relation
-     *
-     * @param Builder|JoinClause $builder
-     * @param Relation|BelongsTo|HasOneOrMany $relation
-     * @param string $table
-     * @return Builder|JoinClause $builder
-     */
-    protected function addRelatedWhereConstraints($builder, $relation, $table)
-    {
-        // Get where clauses from the relationship
-        $wheres = collect($relation->toBase()->wheres)
-            ->where('type', 'Basic')
-            ->map(function ($where) use ($table) {
-                // Add table name to column if it is absent
-                return [$this->columnWithTableName($table, $where['column']), $where['operator'], $where['value']];
-            })->toArray();
-
-        if (!empty($wheres)) {
-            $builder->where($wheres);
-        }
-
-        return $builder;
-    }
-
-    /**
      * Boot method for trait
      *
      */
@@ -97,81 +51,6 @@ trait RelatedPlusTrait
      * @return string
      */
     abstract public function getTable();
-
-    /**
-     * If the relation is one-to-many, just get the first related record
-     *
-     * @param JoinClause $joinClause
-     * @param string $column
-     * @param HasMany|Relation $relation
-     * @param string $table
-     * @param string $direction
-     *
-     * @return JoinClause
-     */
-    public function hasManyJoinWhere(JoinClause $joinClause, $column, $relation, $table, $direction)
-    {
-        return $joinClause->where(
-            $column,
-            function ($subQuery) use ($table, $direction, $relation, $column) {
-                $subQuery = $this->joinOne(
-                    $subQuery->from($table),
-                    $relation,
-                    $column,
-                    $direction
-                );
-
-                // Add any where statements with the relationship
-                $subQuery = $this->addRelatedWhereConstraints($subQuery, $relation, $table);
-
-                // Add any order statements with the relationship
-                return $this->addOrder($subQuery, $relation, $table);
-            }
-        );
-    }
-
-    /**
-     * Get join sql for a HasOne relation
-     *
-     * @param Relation $relation
-     * @param array $order
-     * @return Expression
-     */
-    public function hasOneJoinSql($relation, $order)
-    {
-        // Build subquery for getting first/last record in related table
-        $subQuery = $this
-            ->joinOne(
-                $relation->getRelated()->newQuery(),
-                $relation,
-                $order['column'],
-                $order['direction']
-            )
-            ->setBindings($relation->getBindings());
-
-        return DB::raw('(' . $this->toSqlWithBindings($subQuery) . ')');
-    }
-
-    /**
-     * Adds a where for a relation's join columns and and min/max for a given column
-     *
-     * @param Builder $query
-     * @param Relation $relation
-     * @param string $column
-     * @param string $direction
-     * @return Builder
-     */
-    public function joinOne($query, $relation, $column, $direction)
-    {
-        // Get join fields
-        $joinColumns = $this->getJoinColumns($relation);
-
-        return $this->selectMinMax(
-            $query->whereColumn($joinColumns->first, '=', $joinColumns->second),
-            $column,
-            $direction
-        );
-    }
 
     /**
      * Add joins for one or more relations
@@ -210,6 +89,26 @@ trait RelatedPlusTrait
                 $query = $this->selectRelated($query, $table);
             }
             $query->relationJoin($table, $relation, $operator, $type, $where, $direction);
+        }
+
+        return $query;
+    }
+
+    /**
+     * Add select for related table fields
+     *
+     * @param Builder $query
+     * @param \stdClass $table
+     * @return Builder
+     */
+    public function selectRelated(Builder $query, $table)
+    {
+        $connection = $this->connection;
+
+        foreach (Schema::connection($connection)->getColumnListing($table->name) as $relatedColumn) {
+            $query->addSelect(
+                new Expression("`$table->alias`.`$relatedColumn` AS `$table->alias.$relatedColumn`")
+            );
         }
 
         return $query;
@@ -307,6 +206,196 @@ trait RelatedPlusTrait
     }
 
     /**
+     * Join a HasOne relation which is ordered
+     *
+     * @param Relation $relation
+     * @param JoinClause $join
+     * @return JoinClause
+     */
+    private function hasOneJoin($relation, $join)
+    {
+        // Get first relation order (should only be one)
+        $order = $relation->toBase()->orders[0];
+
+        return $join->on($order['column'], $this->hasOneJoinSql($relation, $order));
+    }
+
+    /**
+     * Get join sql for a HasOne relation
+     *
+     * @param Relation $relation
+     * @param array $order
+     * @return Expression
+     */
+    public function hasOneJoinSql($relation, $order)
+    {
+        // Build subquery for getting first/last record in related table
+        $subQuery = $this
+            ->joinOne(
+                $relation->getRelated()->newQuery(),
+                $relation,
+                $order['column'],
+                $order['direction']
+            )
+            ->setBindings($relation->getBindings());
+
+        return DB::raw('(' . $this->toSqlWithBindings($subQuery) . ')');
+    }
+
+    /**
+     * Join a HasMany Relation
+     *
+     * @param Relation $relation
+     * @param JoinClause $join
+     * @param \stdClass $table
+     * @param string $operator
+     * @param string $direction
+     * @return Builder|JoinClause
+     */
+    protected function hasManyJoin($relation, $join, $table, $operator, $direction)
+    {
+        // Get relation join columns
+        $joinColumns = $this->getJoinColumns($relation);
+
+        $first = $joinColumns->first;
+        $second = $joinColumns->second;
+        if ($table->name !== $table->alias) {
+            $first = str_replace($table->name, $table->alias, $first);
+            $second = str_replace($table->name, $table->alias, $second);
+        }
+
+        $join->on($first, $operator, $second);
+
+        // Add any where clauses from the relationship
+        $join = $this->addRelatedWhereConstraints($join, $relation, $table->alias);
+
+        if (!is_null($direction) && get_class($relation) === HasMany::class) {
+            $join = $this->hasManyJoinWhere($join, $first, $relation, $table->alias, $direction);
+        }
+
+        return $join;
+    }
+
+    /**
+     * If the relation is one-to-many, just get the first related record
+     *
+     * @param JoinClause $joinClause
+     * @param string $column
+     * @param HasMany|Relation $relation
+     * @param string $table
+     * @param string $direction
+     *
+     * @return JoinClause
+     */
+    public function hasManyJoinWhere(JoinClause $joinClause, $column, $relation, $table, $direction)
+    {
+        return $joinClause->where(
+            $column,
+            function ($subQuery) use ($table, $direction, $relation, $column) {
+                $subQuery = $this->joinOne(
+                    $subQuery->from($table),
+                    $relation,
+                    $column,
+                    $direction
+                );
+
+                // Add any where statements with the relationship
+                $subQuery = $this->addRelatedWhereConstraints($subQuery, $relation, $table);
+
+                // Add any order statements with the relationship
+                return $this->addOrder($subQuery, $relation, $table);
+            }
+        );
+    }
+
+    /**
+     * Adds a where for a relation's join columns and and min/max for a given column
+     *
+     * @param Builder $query
+     * @param Relation $relation
+     * @param string $column
+     * @param string $direction
+     * @return Builder
+     */
+    public function joinOne($query, $relation, $column, $direction)
+    {
+        // Get join fields
+        $joinColumns = $this->getJoinColumns($relation);
+
+        return $this->selectMinMax(
+            $query->whereColumn($joinColumns->first, '=', $joinColumns->second),
+            $column,
+            $direction
+        );
+    }
+
+    /**
+     * Adds a select for a min or max on the given column, depending on direction given
+     *
+     * @param Builder $query
+     * @param string $column
+     * @param string $direction
+     * @return Builder
+     */
+    public function selectMinMax($query, $column, $direction)
+    {
+        $column = $this->addBackticks($column);
+
+        /** @var Model $query */
+        if ($direction == 'asc') {
+            return $query->select(DB::raw('MIN(' . $column . ')'));
+        } else {
+            return $query->select(DB::raw('MAX(' . $column . ')'));
+        }
+    }
+
+    /**
+     * Add wheres if they exist for a relation
+     *
+     * @param Builder|JoinClause $builder
+     * @param Relation|BelongsTo|HasOneOrMany $relation
+     * @param string $table
+     * @return Builder|JoinClause $builder
+     */
+    protected function addRelatedWhereConstraints($builder, $relation, $table)
+    {
+        // Get where clauses from the relationship
+        $wheres = collect($relation->toBase()->wheres)
+            ->where('type', 'Basic')
+            ->map(function ($where) use ($table) {
+                // Add table name to column if it is absent
+                return [$this->columnWithTableName($table, $where['column']), $where['operator'], $where['value']];
+            })->toArray();
+
+        if (!empty($wheres)) {
+            $builder->where($wheres);
+        }
+
+        return $builder;
+    }
+
+    /**
+     * Add orderBy if orders exist for a relation
+     *
+     * @param Builder|JoinClause $builder
+     * @param Relation|BelongsTo|HasOneOrMany $relation
+     * @param string $table
+     * @return Builder|JoinClause $builder
+     */
+    protected function addOrder($builder, $relation, $table)
+    {
+        /** @var Model $builder */
+        if (!empty($relation->toBase()->orders)) {
+            // Get where clauses from the relationship
+            foreach ($relation->toBase()->orders as $order) {
+                $builder->orderBy($this->columnWithTableName($table, $order['column']), $order['direction']);
+            }
+        }
+
+        return $builder;
+    }
+
+    /**
      * Add where statements for the model search fields
      *
      * @param Builder $query
@@ -344,95 +433,6 @@ trait RelatedPlusTrait
         return $query
             ->from(DB::raw("({$sql}) as " . $table))
             ->select($table . '.*');
-    }
-
-    /**
-     * Adds a select for a min or max on the given column, depending on direction given
-     *
-     * @param Builder $query
-     * @param string $column
-     * @param string $direction
-     * @return Builder
-     */
-    public function selectMinMax($query, $column, $direction)
-    {
-        $column = $this->addBackticks($column);
-
-        /** @var Model $query */
-        if ($direction == 'asc') {
-            return $query->select(DB::raw('MIN(' . $column . ')'));
-        } else {
-            return $query->select(DB::raw('MAX(' . $column . ')'));
-        }
-    }
-
-    /**
-     * Add select for related table fields
-     *
-     * @param Builder $query
-     * @param \stdClass $table
-     * @return Builder
-     */
-    public function selectRelated(Builder $query, $table)
-    {
-        $connection = $this->connection;
-
-        foreach (Schema::connection($connection)->getColumnListing($table->name) as $relatedColumn) {
-            $query->addSelect(
-                new Expression("`$table->alias`.`$relatedColumn` AS `$table->alias.$relatedColumn`")
-            );
-        }
-
-        return $query;
-    }
-
-    /**
-     * Join a HasOne relation which is ordered
-     *
-     * @param Relation $relation
-     * @param JoinClause $join
-     * @return JoinClause
-     */
-    private function hasOneJoin($relation, $join)
-    {
-        // Get first relation order (should only be one)
-        $order = $relation->toBase()->orders[0];
-
-        return $join->on($order['column'], $this->hasOneJoinSql($relation, $order));
-    }
-
-    /**
-     * Join a HasMany Relation
-     *
-     * @param Relation $relation
-     * @param JoinClause $join
-     * @param \stdClass $table
-     * @param string $operator
-     * @param string $direction
-     * @return Builder|JoinClause
-     */
-    protected function hasManyJoin($relation, $join, $table, $operator, $direction)
-    {
-        // Get relation join columns
-        $joinColumns = $this->getJoinColumns($relation);
-
-        $first = $joinColumns->first;
-        $second = $joinColumns->second;
-        if ($table->name !== $table->alias) {
-            $first = str_replace($table->name, $table->alias, $first);
-            $second = str_replace($table->name, $table->alias, $second);
-        }
-
-        $join->on($first, $operator, $second);
-
-        // Add any where clauses from the relationship
-        $join = $this->addRelatedWhereConstraints($join, $relation, $table->alias);
-
-        if (!is_null($direction) && get_class($relation) === HasMany::class) {
-            $join = $this->hasManyJoinWhere($join, $first, $relation, $table->alias, $direction);
-        }
-
-        return $join;
     }
 
     /**
