@@ -234,7 +234,7 @@ trait RelatedPlusTrait
      */
     public function scopeOrderByCustom(Builder $query, $orderField, $direction)
     {
-        if ($this->hasFieldsAndDefaults($orderField, $direction)) {
+        if ($this->hasOrderFieldsAndDefaults($orderField, $direction)) {
             $query = $this->removeGlobalScope($query, 'order');
         }
 
@@ -457,17 +457,39 @@ trait RelatedPlusTrait
      * @param string $direction
      * @return bool
      */
-    private function hasFieldsAndDefaults($orderField, $direction)
+    private function hasOrderFieldsAndDefaults($orderField, $direction)
+    {
+        return $this->hasOrderFields() && $this->hasOrderDefaults($orderField, $direction);
+    }
+
+    /**
+     * Check $this->order_fields set correctly
+     *
+     * @return bool
+     */
+    private function hasOrderFields()
     {
         if (!isset($this->order_fields) || !is_array($this->order_fields)) {
             throw new InvalidArgumentException(get_class($this) . ' order fields not set correctly.');
         } else {
-            if (($orderField === '' || $direction === '')
-                && (!isset($this->order_defaults) || !is_array($this->order_defaults))) {
-                throw new InvalidArgumentException(get_class($this) . ' order defaults not set and not overriden.');
-            } else {
-                return true;
-            }
+            return true;
+        }
+    }
+
+    /**
+     * Check order defaults set correctly
+     *
+     * @param string $orderField
+     * @param string $direction
+     * @return bool
+     */
+    private function hasOrderDefaults($orderField, $direction)
+    {
+        if (($orderField === '' || $direction === '')
+            && (!isset($this->order_defaults) || !is_array($this->order_defaults))) {
+            throw new InvalidArgumentException(get_class($this) . ' order defaults not set and not overriden.');
+        } else {
+            return true;
         }
     }
 
