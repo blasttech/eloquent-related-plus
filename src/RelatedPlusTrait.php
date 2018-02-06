@@ -57,7 +57,7 @@ trait RelatedPlusTrait
      * @param string $table
      * @return Builder|JoinClause $builder
      */
-    protected function addWhereConstraints($builder, $relation, $table)
+    protected function addRelatedWhereConstraints($builder, $relation, $table)
     {
         // Get where clauses from the relationship
         $wheres = collect($relation->toBase()->wheres)
@@ -122,7 +122,7 @@ trait RelatedPlusTrait
                 );
 
                 // Add any where statements with the relationship
-                $subQuery = $this->addWhereConstraints($subQuery, $relation, $table);
+                $subQuery = $this->addRelatedWhereConstraints($subQuery, $relation, $table);
 
                 // Add any order statements with the relationship
                 return $this->addOrder($subQuery, $relation, $table);
@@ -426,7 +426,7 @@ trait RelatedPlusTrait
         $join->on($first, $operator, $second);
 
         // Add any where clauses from the relationship
-        $join = $this->addWhereConstraints($join, $relation, $table->alias);
+        $join = $this->addRelatedWhereConstraints($join, $relation, $table->alias);
 
         if (!is_null($direction) && get_class($relation) === HasMany::class) {
             $join = $this->hasManyJoinWhere($join, $first, $relation, $table->alias, $direction);
