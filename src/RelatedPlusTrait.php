@@ -216,26 +216,6 @@ trait RelatedPlusTrait
     }
 
     /**
-     * Add select for related table fields
-     *
-     * @param Builder $query
-     * @param $table
-     * @return Builder
-     */
-    public function selectRelated(Builder $query, $table)
-    {
-        $connection = $this->connection;
-
-        foreach (Schema::connection($connection)->getColumnListing($table->name) as $relatedColumn) {
-            $query->addSelect(
-                new Expression("`$table->alias`.`$relatedColumn` AS `$table->alias.$relatedColumn`")
-            );
-        }
-
-        return $query;
-    }
-
-    /**
      * Set the order of a model
      *
      * @param Builder $query
@@ -384,6 +364,26 @@ trait RelatedPlusTrait
         } else {
             return $query->select(DB::raw('MAX(' . $column . ')'));
         }
+    }
+
+    /**
+     * Add select for related table fields
+     *
+     * @param Builder $query
+     * @param $table
+     * @return Builder
+     */
+    public function selectRelated(Builder $query, $table)
+    {
+        $connection = $this->connection;
+
+        foreach (Schema::connection($connection)->getColumnListing($table->name) as $relatedColumn) {
+            $query->addSelect(
+                new Expression("`$table->alias`.`$relatedColumn` AS `$table->alias.$relatedColumn`")
+            );
+        }
+
+        return $query;
     }
 
     /**
