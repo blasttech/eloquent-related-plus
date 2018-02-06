@@ -154,4 +154,25 @@ trait CustomOrderTrait
             return true;
         }
     }
+
+    /**
+     * Check if model is currently joined to $table
+     *
+     * @param Builder $builder
+     * @param string $table
+     * @return bool
+     */
+    protected function isJoinedToTable(Builder $builder, $table)
+    {
+        $joins = $builder->getQuery()->joins;
+        if (!is_null($joins)) {
+            foreach ($joins as $joinClause) {
+                if ($joinClause->table == $table) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
 }
