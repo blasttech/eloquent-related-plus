@@ -243,72 +243,6 @@ trait RelatedPlusTrait
     }
 
     /**
-     * Join a HasMany Relation
-     *
-     * @param Relation $relation
-     * @param JoinClause $join
-     * @param \stdClass $table
-     * @param string $operator
-     * @param string $direction
-     * @return Builder|JoinClause
-     */
-    protected function hasManyJoin($relation, $join, $table, $operator, $direction)
-    {
-        // Get relation join columns
-        $joinColumns = $this->getJoinColumns($relation);
-
-        $first = $joinColumns->first;
-        $second = $joinColumns->second;
-        if ($table->name !== $table->alias) {
-            $first = str_replace($table->name, $table->alias, $first);
-            $second = str_replace($table->name, $table->alias, $second);
-        }
-
-        $join->on($first, $operator, $second);
-
-        // Add any where clauses from the relationship
-        $join = $this->addRelatedWhereConstraints($join, $relation, $table->alias);
-
-        if (!is_null($direction) && get_class($relation) === HasMany::class) {
-            $join = $this->hasManyJoinWhere($join, $first, $relation, $table->alias, $direction);
-        }
-
-        return $join;
-    }
-
-    /**
-     * If the relation is one-to-many, just get the first related record
-     *
-     * @param JoinClause $joinClause
-     * @param string $column
-     * @param HasMany|Relation $relation
-     * @param string $table
-     * @param string $direction
-     *
-     * @return JoinClause
-     */
-    public function hasManyJoinWhere(JoinClause $joinClause, $column, $relation, $table, $direction)
-    {
-        return $joinClause->where(
-            $column,
-            function ($subQuery) use ($table, $direction, $relation, $column) {
-                $subQuery = $this->joinOne(
-                    $subQuery->from($table),
-                    $relation,
-                    $column,
-                    $direction
-                );
-
-                // Add any where statements with the relationship
-                $subQuery = $this->addRelatedWhereConstraints($subQuery, $relation, $table);
-
-                // Add any order statements with the relationship
-                return $this->addOrder($subQuery, $relation, $table);
-            }
-        );
-    }
-
-    /**
      * Adds a where for a relation's join columns and and min/max for a given column
      *
      * @param Builder $query
@@ -350,6 +284,40 @@ trait RelatedPlusTrait
     }
 
     /**
+     * Join a HasMany Relation
+     *
+     * @param Relation $relation
+     * @param JoinClause $join
+     * @param \stdClass $table
+     * @param string $operator
+     * @param string $direction
+     * @return Builder|JoinClause
+     */
+    protected function hasManyJoin($relation, $join, $table, $operator, $direction)
+    {
+        // Get relation join columns
+        $joinColumns = $this->getJoinColumns($relation);
+
+        $first = $joinColumns->first;
+        $second = $joinColumns->second;
+        if ($table->name !== $table->alias) {
+            $first = str_replace($table->name, $table->alias, $first);
+            $second = str_replace($table->name, $table->alias, $second);
+        }
+
+        $join->on($first, $operator, $second);
+
+        // Add any where clauses from the relationship
+        $join = $this->addRelatedWhereConstraints($join, $relation, $table->alias);
+
+        if (!is_null($direction) && get_class($relation) === HasMany::class) {
+            $join = $this->hasManyJoinWhere($join, $first, $relation, $table->alias, $direction);
+        }
+
+        return $join;
+    }
+
+    /**
      * Add wheres if they exist for a relation
      *
      * @param Builder|JoinClause $builder
@@ -372,6 +340,38 @@ trait RelatedPlusTrait
         }
 
         return $builder;
+    }
+
+    /**
+     * If the relation is one-to-many, just get the first related record
+     *
+     * @param JoinClause $joinClause
+     * @param string $column
+     * @param HasMany|Relation $relation
+     * @param string $table
+     * @param string $direction
+     *
+     * @return JoinClause
+     */
+    public function hasManyJoinWhere(JoinClause $joinClause, $column, $relation, $table, $direction)
+    {
+        return $joinClause->where(
+            $column,
+            function ($subQuery) use ($table, $direction, $relation, $column) {
+                $subQuery = $this->joinOne(
+                    $subQuery->from($table),
+                    $relation,
+                    $column,
+                    $direction
+                );
+
+                // Add any where statements with the relationship
+                $subQuery = $this->addRelatedWhereConstraints($subQuery, $relation, $table);
+
+                // Add any order statements with the relationship
+                return $this->addOrder($subQuery, $relation, $table);
+            }
+        );
     }
 
     /**
