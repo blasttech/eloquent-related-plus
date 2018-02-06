@@ -426,10 +426,10 @@ trait RelatedPlusTrait
         $join->on($first, $operator, $second);
 
         // Add any where clauses from the relationship
-        $join = $this->addWhereConstraints($join, $relation, $tableAlias);
+        $join = $this->addWhereConstraints($join, $relation, $table->alias);
 
         if (!is_null($direction) && get_class($relation) === HasMany::class) {
-            $join = $this->hasManyJoinWhere($join, $first, $relation, $tableAlias, $direction);
+            $join = $this->hasManyJoinWhere($join, $first, $relation, $table->alias, $direction);
         }
 
         return $join;
