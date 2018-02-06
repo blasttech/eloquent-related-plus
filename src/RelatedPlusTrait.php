@@ -241,6 +241,23 @@ trait RelatedPlusTrait
     }
 
     /**
+     * Get relation table name and alias
+     *
+     * @param Relation $relation
+     * @return \stdClass
+     */
+    public function getRelationTables($relation)
+    {
+        $table = new \stdClass();
+        $table->name = $relation->getRelated()->getTable();
+        // if using a 'table' AS 'tableAlias' in a from statement, otherwise alias will be the table name
+        $from = explode(' ', $relation->getQuery()->getQuery()->from);
+        $table->alias = array_pop($from);
+
+        return $table;
+    }
+
+    /**
      * Set the order of a model
      *
      * @param Builder $query
