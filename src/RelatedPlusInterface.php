@@ -39,8 +39,7 @@ interface RelatedPlusInterface
      * Join a model
      *
      * @param Builder $query
-     * @param string $tableName
-     * @param string $tableAlias
+     * @param \stdClass $table
      * @param \Illuminate\Database\Eloquent\Relations\Relation $relation
      * @param string $operator
      * @param string $type
@@ -51,8 +50,7 @@ interface RelatedPlusInterface
      */
     public function scopeRelationJoin(
         Builder $query,
-        $tableName,
-        $tableAlias,
+        $table,
         $relation,
         $operator,
         $type,
@@ -111,15 +109,15 @@ interface RelatedPlusInterface
     /**
      * If the relation is one-to-many, just get the first related record
      *
-     * @param JoinClause $joinClause
-     * @param string $column
      * @param \Illuminate\Database\Eloquent\Relations\HasMany|\Illuminate\Database\Eloquent\Relations\Relation $relation
+     * @param JoinClause $join
+     * @param string $column
      * @param string $table
      * @param string $direction
      *
      * @return JoinClause
      */
-    public function hasManyJoin(JoinClause $joinClause, $column, $relation, $table, $direction);
+    public function hasManyJoin($relation, $join, $column, $table, $direction);
 
     /**
      * Add where statements for the model search fields

@@ -199,13 +199,8 @@ trait RelatedPlusTrait
         $relatedSelect = true,
         $direction = null
     ) {
-        $connection = $this->connection;
-
         foreach ($this->parseRelationNames($relationName) as $relation) {
-            $tableName = $relation->getRelated()->getTable();
-            // if using a 'table' AS 'tableAlias' in a from statement, otherwise alias will be the table name
-            $from = explode(' ', $relation->getQuery()->getQuery()->from);
-            $tableAlias = array_pop($from);
+            $table = $this->getRelationTables($relation);
 
             /** @var Model $query */
             if (empty($query->getQuery()->columns)) {
@@ -214,7 +209,7 @@ trait RelatedPlusTrait
             if ($relatedSelect) {
                 $query = $this->selectRelated($query, $table);
             }
-            $query->relationJoin($tableName, $tableAlias, $relation, $operator, $type, $where, $direction);
+            $query->relationJoin($table, $relation, $operator, $type, $where, $direction);
         }
 
         return $query;
@@ -310,8 +305,7 @@ trait RelatedPlusTrait
      * Join a model
      *
      * @param Builder $query
-     * @param string $tableName
-     * @param string $tableAlias
+     * @param \stdClass $table
      * @param Relation $relation
      * @param string $operator
      * @param string $type
@@ -321,23 +315,21 @@ trait RelatedPlusTrait
      */
     public function scopeRelationJoin(
         Builder $query,
-        $tableName,
-        $tableAlias,
+        $table,
         $relation,
         $operator,
         $type,
         $where,
         $direction = null
     ) {
-        if ($tableAlias !== '' && $tableName !== $tableAlias) {
-            $fullTableName = $tableName . ' AS ' . $tableAlias;
+        if ($table->alias !== '' && $table->name !== $table->alias) {
+            $fullTableName = $table->name . ' AS ' . $table->alias;
         } else {
-            $fullTableName = $tableName;
+            $fullTableName = $table->name;
         }
 
         return $query->join($fullTableName, function (JoinClause $join) use (
-            $tableName,
-            $tableAlias,
+            $table,
             $relation,
             $operator,
             $direction
@@ -346,7 +338,7 @@ trait RelatedPlusTrait
             if (class_basename($relation) === 'HasOne' && !empty($relation->toBase()->orders)) {
                 return $this->hasOneJoin($relation, $join);
             } else {
-                return $this->hasManyJoin($relation, $join, $tableName, $tableAlias, $operator, $direction);
+                return $this->hasManyJoin($relation, $join, $table, $operator, $direction);
             }
         }, null, null, $type, $where);
     }
@@ -453,22 +445,21 @@ trait RelatedPlusTrait
      *
      * @param Relation $relation
      * @param JoinClause $join
-     * @param string $tableName
-     * @param string $tableAlias
+     * @param \stdClass $table
      * @param string $operator
      * @param string $direction
      * @return Builder|JoinClause
      */
-    private function hasManyJoin($relation, $join, $tableName, $tableAlias, $operator, $direction)
+    private function hasManyJoin($relation, $join, $table, $operator, $direction)
     {
         // Get relation join columns
         $joinColumns = $this->getJoinColumns($relation);
 
         $first = $joinColumns->first;
         $second = $joinColumns->second;
-        if ($tableName !== $tableAlias) {
-            $first = str_replace($tableName, $tableAlias, $first);
-            $second = str_replace($tableName, $tableAlias, $second);
+        if ($table->name !== $table->alias) {
+            $first = str_replace($table->name, $table->alias, $first);
+            $second = str_replace($table->name, $table->alias, $second);
         }
 
         $join->on($first, $operator, $second);
