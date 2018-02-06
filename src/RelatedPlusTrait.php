@@ -434,5 +434,4 @@ trait RelatedPlusTrait
 
         return $join;
     }
-
 }

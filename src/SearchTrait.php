@@ -109,5 +109,4 @@ trait SearchTrait
             str_replace('{{search}}', $searchText, $searchValue)
         );
     }
-
 }
