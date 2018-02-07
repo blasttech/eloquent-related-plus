@@ -36,7 +36,7 @@ trait RelatedPlusTrait
     {
         static::saving(function ($model) {
             if (!empty($model->nullable)) {
-                /* @var \Illuminate\Database\Eloquent\Model|static $model */
+                /* @var \Illuminate\Database\Eloquent\Model|RelatedPlusTrait|static $model */
                 $model->setAttributesNull();
             }
         });
