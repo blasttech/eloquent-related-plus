@@ -61,6 +61,20 @@ trait CustomOrderTrait
     }
 
     /**
+     * Check $this->search_fields set correctly
+     *
+     * @return bool
+     */
+    protected function hasSearchFields()
+    {
+        if (!isset($this->search_fields) || !is_array($this->search_fields) || empty($this->search_fields)) {
+            throw new InvalidArgumentException(get_class($this) . ' search properties not set correctly.');
+        } else {
+            return true;
+        }
+    }
+
+    /**
      * Override column if provided column not valid
      *
      * @param string $column

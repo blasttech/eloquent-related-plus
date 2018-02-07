@@ -403,12 +403,8 @@ trait RelatedPlusTrait
         $searchText = trim($searchText);
 
         // If search is set
-        if ($searchText != "") {
-            if (!isset($this->search_fields) || !is_array($this->search_fields) || empty($this->search_fields)) {
-                throw new InvalidArgumentException(get_class($this) . ' search properties not set correctly.');
-            } else {
-                $query = $this->checkSearchFields($query, $searchText);
-            }
+        if ($searchText != "" && $this->hasSearchFields()) {
+            $query = $this->checkSearchFields($query, $searchText);
         }
 
         return $query;
