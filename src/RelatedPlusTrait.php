@@ -343,15 +343,9 @@ trait RelatedPlusTrait
     {
         // Get relation join columns
         $joinColumns = $this->getJoinColumns($relation);
+        $joinColumns = $this->replaceColumnTables($joinColumns, $table);
 
-        $first = $joinColumns->first;
-        $second = $joinColumns->second;
-        if ($table->name !== $table->alias) {
-            $first = str_replace($table->name, $table->alias, $first);
-            $second = str_replace($table->name, $table->alias, $second);
-        }
-
-        $join->on($first, $operator, $second);
+        $join->on($joinColumns->first, $operator, $joinColumns->second);
 
         // Add any where clauses from the relationship
         $join = $this->addRelatedWhereConstraints($join, $relation, $table->alias);
@@ -361,6 +355,23 @@ trait RelatedPlusTrait
         }
 
         return $join;
+    }
+
+    /**
+     * Replace column table names with aliases
+     *
+     * @param \stdClass $joinColumns
+     * @param \stdClass $table
+     * @return \stdClass
+     */
+    protected function replaceColumnTables($joinColumns, $table)
+    {
+        if ($table->name !== $table->alias) {
+            $joinColumns->first = str_replace($table->name, $table->alias, $joinColumns->first);
+            $joinColumns->second = str_replace($table->name, $table->alias, $joinColumns->second);
+        }
+
+        return $joinColumns;
     }
 
     /**
