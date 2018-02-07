@@ -42,13 +42,6 @@ trait RelatedPlusTrait
     }
 
     /**
-     * Get the table associated with the model.
-     *
-     * @return string
-     */
-    abstract public function getTable();
-
-    /**
      * Set empty fields to null
      */
     protected function setAttributesNull()
@@ -59,6 +52,13 @@ trait RelatedPlusTrait
             }
         }
     }
+
+    /**
+     * Get the table associated with the model.
+     *
+     * @return string
+     */
+    abstract public function getTable();
 
     /**
      * Add joins for one or more relations
