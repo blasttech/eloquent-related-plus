@@ -207,7 +207,7 @@ trait RelatedPlusTrait
      * @param string $operator
      * @param string $type
      * @param boolean $where
-     * @param null $direction
+     * @param string $direction
      * @return Builder
      */
     public function scopeRelationJoin(
@@ -227,13 +227,28 @@ trait RelatedPlusTrait
             $operator,
             $direction
         ) {
-            // If a HasOne relation and ordered - ie join to the latest/earliest
-            if (class_basename($relation) === 'HasOne' && !empty($relation->toBase()->orders)) {
-                return $this->hasOneJoin($relation, $join);
-            } else {
-                return $this->hasManyJoin($relation, $join, $table, $operator, $direction);
-            }
+            $this->relationJoinType($relation, $join, $table, $operator, $direction);
         }, null, null, $type, $where);
+    }
+
+    /**
+     * Check relation type and join
+     *
+     * @param Relation $relation
+     * @param JoinClause $join
+     * @param \stdClass $table
+     * @param string $operator
+     * @param string $direction
+     * @return Builder|JoinClause
+     */
+    protected function relationJoinType($relation, $join, $table, $operator, $direction = null)
+    {
+        // If a HasOne relation and ordered - ie join to the latest/earliest
+        if (class_basename($relation) === 'HasOne' && !empty($relation->toBase()->orders)) {
+            return $this->hasOneJoin($relation, $join);
+        } else {
+            return $this->hasManyJoin($relation, $join, $table, $operator, $direction);
+        }
     }
 
     /**
