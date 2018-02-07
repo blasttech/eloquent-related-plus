@@ -4,8 +4,6 @@ namespace Blasttech\EloquentRelatedPlus;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasOneOrMany;
 use Illuminate\Database\Eloquent\Relations\Relation;
 
 /**
@@ -36,26 +34,6 @@ trait HelperMethodTrait
         $table->alias = array_pop($from);
 
         return $table;
-    }
-
-    /**
-     * Get the join columns for a relation
-     *
-     * @param Relation|BelongsTo|HasOneOrMany $relation
-     * @return \stdClass
-     */
-    protected function getJoinColumns($relation)
-    {
-        // Get keys with table names
-        if ($relation instanceof BelongsTo) {
-            $first = $relation->getOwnerKey();
-            $second = $relation->getForeignKey();
-        } else {
-            $first = $relation->getQualifiedParentKeyName();
-            $second = $relation->getQualifiedForeignKeyName();
-        }
-
-        return (object)['first' => $first, 'second' => $second];
     }
 
     /**
