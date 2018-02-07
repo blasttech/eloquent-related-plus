@@ -175,4 +175,18 @@ trait CustomOrderTrait
 
         return false;
     }
+
+    /**
+     * Check if relation exists in eager loads
+     *
+     * @param Builder $builder
+     * @param \Illuminate\Database\Eloquent\Relations\Relation $relation
+     * @return bool
+     */
+    protected function isEagerLoaded(Builder $builder, $relation)
+    {
+        $eagerLoads = $builder->getEagerLoads();
+
+        return !is_null($eagerLoads) && in_array($relation, $eagerLoads);
+    }
 }
