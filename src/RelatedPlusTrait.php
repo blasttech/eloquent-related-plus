@@ -35,11 +35,8 @@ trait RelatedPlusTrait
     {
         static::saving(function ($model) {
             if (!empty($model->nullable)) {
-                foreach ($model->attributes as $key => $value) {
-                    if (isset($model->nullable[$key])) {
-                        $model->{$key} = empty(trim($value)) ? null : $value;
-                    }
-                }
+                /* @var \Illuminate\Database\Eloquent\Model|static $model */
+                $model->setAttributesNull();
             }
         });
     }
@@ -50,6 +47,18 @@ trait RelatedPlusTrait
      * @return string
      */
     abstract public function getTable();
+
+    /**
+     * Set empty fields to null
+     */
+    protected function setAttributesNull()
+    {
+        foreach ($this->attributes as $key => $value) {
+            if (isset($this->nullable[$key])) {
+                $this->{$key} = empty(trim($value)) ? null : $value;
+            }
+        }
+    }
 
     /**
      * Add joins for one or more relations
