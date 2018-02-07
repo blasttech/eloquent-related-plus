@@ -36,11 +36,7 @@ trait CustomOrderTrait
      */
     protected function hasOrderFields()
     {
-        if (!isset($this->order_fields) || !is_array($this->order_fields)) {
-            throw new InvalidArgumentException(get_class($this) . ' order fields not set correctly.');
-        } else {
-            return true;
-        }
+        return $this->hasProperty('order_fields');
     }
 
     /**
@@ -52,9 +48,8 @@ trait CustomOrderTrait
      */
     protected function hasOrderDefaults($orderField, $direction)
     {
-        if (($orderField === '' || $direction === '')
-            && (!isset($this->order_defaults) || !is_array($this->order_defaults))) {
-            throw new InvalidArgumentException(get_class($this) . ' order defaults not set and not overriden.');
+        if ($orderField === '' || $direction === '') {
+            return $this->hasProperty('order_defaults');
         } else {
             return true;
         }
@@ -67,8 +62,18 @@ trait CustomOrderTrait
      */
     protected function hasSearchFields()
     {
-        if (!isset($this->search_fields) || !is_array($this->search_fields) || empty($this->search_fields)) {
-            throw new InvalidArgumentException(get_class($this) . ' search properties not set correctly.');
+        return $this->hasProperty('search_fields', false);
+    }
+
+    /**
+     * @param string $attributeName
+     * @param bool $canBeEmpty
+     * @return bool
+     */
+    protected function hasProperty($attributeName, $canBeEmpty = true)
+    {
+        if (!isset($this->$attributeName) || !is_array($this->$attributeName) || $canBeEmpty || empty($this->$attributeName)) {
+            throw new InvalidArgumentException(get_class($this) . ' ' . $attributeName . ' property not set correctly.');
         } else {
             return true;
         }
