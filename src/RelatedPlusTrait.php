@@ -90,14 +90,31 @@ trait RelatedPlusTrait
         foreach ($this->parseRelationNames($relationName) as $relation) {
             $table = $this->getRelationTables($relation);
 
-            /** @var Model $query */
-            if (empty($query->getQuery()->columns)) {
-                $query->select($this->getTable() . ".*");
-            }
-            if ($relatedSelect) {
-                $query = $this->selectRelated($query, $table);
-            }
+            // Add selects
+            $query = $this->modelJoinSelects($query, $table, $relatedSelect);
+
             $query->relationJoin($table, $relation, $operator, $type, $where, $direction);
+        }
+
+        return $query;
+    }
+
+    /**
+     * Add selects for model join
+     *
+     * @param Builder $query
+     * @param \stdClass $table
+     * @param bool $relatedSelect
+     * @return mixed
+     */
+    protected function modelJoinSelects($query, $table, $relatedSelect)
+    {
+        /** @var Model $query */
+        if (empty($query->getQuery()->columns)) {
+            $query->select($this->getTable() . ".*");
+        }
+        if ($relatedSelect) {
+            $query = $this->selectRelated($query, $table);
         }
 
         return $query;
