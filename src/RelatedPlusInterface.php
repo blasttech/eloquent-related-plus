@@ -109,8 +109,8 @@ interface RelatedPlusInterface
      * Add where statements for the model search fields
      *
      * @param Builder $query
-     * @param string $search
+     * @param string $searchText
      * @return Builder
      */
-    public function scopeSearch(Builder $query, $search = '');
+    public function scopeSearch(Builder $query, $searchText = '');
 }
