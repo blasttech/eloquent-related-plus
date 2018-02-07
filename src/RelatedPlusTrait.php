@@ -141,23 +141,49 @@ trait RelatedPlusTrait
     public function scopeOrderByWith(Builder $query, $order)
     {
         if (isset($this->order_with[$order])) {
-            $with = 'with' . $this->order_with[$order];
-
-            $query->$with();
+            $query = $this->addOrderWith($query, $order);
         }
 
         if (isset($this->order_fields[$order])) {
-            $orderOption = (explode('.', $this->order_fields[$order]))[0];
+            $query = $this->addOrderJoin($query, $order);
+        }
 
-            if (isset($this->order_relations[$orderOption])) {
-                $query->modelJoin(
-                    $this->order_relations[$orderOption],
-                    '=',
-                    'left',
-                    false,
-                    false
-                );
-            }
+        return $query;
+    }
+
+    /**
+     * Execute a scope in the order_width settings
+     *
+     * @param Builder $query
+     * @param string $order
+     * @return Builder
+     */
+    protected function addOrderWith(Builder $query, $order)
+    {
+        $with = 'with' . $this->order_with[$order];
+
+        return $query->$with();
+    }
+
+    /**
+     * Add join from order_fields
+     *
+     * @param Builder $query
+     * @param string $order
+     * @return Builder
+     */
+    protected function addOrderJoin(Builder $query, $order)
+    {
+        $orderOption = (explode('.', $this->order_fields[$order]))[0];
+
+        if (isset($this->order_relations[$orderOption])) {
+            $query->modelJoin(
+                $this->order_relations[$orderOption],
+                '=',
+                'left',
+                false,
+                false
+            );
         }
 
         return $query;
