@@ -23,8 +23,6 @@ use Illuminate\Database\Query\JoinClause;
  */
 trait JoinsTrait
 {
-    use HelperMethodTrait;
-
     /**
      * Check relation type and get join
      *
