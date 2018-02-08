@@ -246,26 +246,6 @@ trait RelatedPlusTrait
     }
 
     /**
-     * Adds a select for a min or max on the given column, depending on direction given
-     *
-     * @param Builder $query
-     * @param string $column
-     * @param string $direction
-     * @return Builder
-     */
-    public function selectMinMax($query, $column, $direction)
-    {
-        $column = $this->addBackticks($column);
-
-        /** @var Model $query */
-        if ($direction == 'asc') {
-            return $query->select(DB::raw('MIN(' . $column . ')'));
-        } else {
-            return $query->select(DB::raw('MAX(' . $column . ')'));
-        }
-    }
-
-    /**
      * Add where statements for the model search fields
      *
      * @param Builder $query

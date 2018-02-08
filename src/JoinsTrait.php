@@ -125,6 +125,26 @@ trait JoinsTrait
     }
 
     /**
+     * Adds a select for a min or max on the given column, depending on direction given
+     *
+     * @param Builder $query
+     * @param string $column
+     * @param string $direction
+     * @return Builder
+     */
+    protected function selectMinMax($query, $column, $direction)
+    {
+        $column = $this->addBackticks($column);
+
+        /** @var Model $query */
+        if ($direction == 'asc') {
+            return $query->select(DB::raw('MIN(' . $column . ')'));
+        } else {
+            return $query->select(DB::raw('MAX(' . $column . ')'));
+        }
+    }
+
+    /**
      * Join a HasMany Relation
      *
      * @param Relation $relation
