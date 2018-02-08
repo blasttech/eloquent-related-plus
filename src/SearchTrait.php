@@ -59,9 +59,9 @@ trait SearchTrait
             } else {
                 return $this->searchThis($query, $searchFieldParameters, $table, $searchColumn, $searchText);
             }
-        } else {
-            return $query;
         }
+
+        return $query;
     }
 
     /**

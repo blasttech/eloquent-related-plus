@@ -48,9 +48,9 @@ trait CustomOrderTrait
     {
         if (!isset($this->$attributeName) || !is_array($this->$attributeName) || (!$canBeEmpty && empty($this->$attributeName))) {
             throw new InvalidArgumentException(get_class($this) . ' ' . $attributeName . ' property not set correctly.');
-        } else {
-            return true;
         }
+
+        return true;
     }
 
     /**
@@ -64,9 +64,9 @@ trait CustomOrderTrait
     {
         if ($orderField === '' || $direction === '') {
             return $this->hasProperty('order_defaults');
-        } else {
-            return true;
         }
+
+        return true;
     }
 
     /**
@@ -169,9 +169,9 @@ trait CustomOrderTrait
     {
         if (!$this->isJoinedToTable($builder, $table)) {
             return $this->isEagerLoaded($builder, $relation);
-        } else {
-            return true;
         }
+
+        return true;
     }
 
     /**

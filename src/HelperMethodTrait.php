@@ -137,9 +137,9 @@ trait HelperMethodTrait
     {
         if ($table->alias !== '' && $table->name !== $table->alias) {
             return $table->name . ' AS ' . $table->alias;
-        } else {
-            return $table->name;
         }
+
+        return $table->name;
     }
 
     /**

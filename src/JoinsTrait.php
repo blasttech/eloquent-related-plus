@@ -4,7 +4,6 @@ namespace Blasttech\EloquentRelatedPlus;
 
 use DB;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOneOrMany;
@@ -41,9 +40,9 @@ trait JoinsTrait
         // If a HasOne relation and ordered - ie join to the latest/earliest
         if (class_basename($relation) === 'HasOne' && !empty($relation->toBase()->orders)) {
             return $this->hasOneJoin($relation, $join);
-        } else {
-            return $this->hasManyJoin($relation, $join, $table, $operator, $direction);
         }
+
+        return $this->hasManyJoin($relation, $join, $table, $operator, $direction);
     }
 
     /**
@@ -134,13 +133,9 @@ trait JoinsTrait
      */
     protected function selectMinMax($query, $column, $direction)
     {
-        $column = $this->addBackticks($column);
+        $sql_direction = ($direction == 'asc' ? 'MIN' : 'MAX');
 
-        if ($direction == 'asc') {
-            return $query->select(DB::raw('MIN(' . $column . ')'));
-        } else {
-            return $query->select(DB::raw('MAX(' . $column . ')'));
-        }
+        return $query->select(DB::raw($sql_direction . '(' . $this->addBackticks($column) . ')'));
     }
 
     /**
