@@ -46,7 +46,8 @@ trait CustomOrderTrait
      */
     protected function hasProperty($attributeName, $canBeEmpty = true)
     {
-        if (!isset($this->$attributeName) || !is_array($this->$attributeName) || (!$canBeEmpty && empty($this->$attributeName))) {
+        if (!isset($this->$attributeName) || !is_array($this->$attributeName) ||
+            (!$canBeEmpty && empty($this->$attributeName))) {
             throw new InvalidArgumentException(get_class($this) . ' ' . $attributeName . ' property not set correctly.');
         }
 

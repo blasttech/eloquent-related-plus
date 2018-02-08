@@ -311,8 +311,8 @@ trait RelatedPlusTrait
     {
         $query->orderBy(DB::raw($column), $direction);
 
-        if (isset($this->order_relations) && (strpos($column,
-                    '.') !== false || isset($this->order_relations[$column]))) {
+        if (isset($this->order_relations) && (strpos($column, '.') !== false ||
+                isset($this->order_relations[$column]))) {
             $query = $this->joinRelatedTable($query, $this->getTableFromColumn($column));
         }
 
