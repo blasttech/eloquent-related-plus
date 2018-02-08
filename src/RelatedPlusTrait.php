@@ -124,7 +124,7 @@ trait RelatedPlusTrait
      * @param \stdClass $table
      * @return Builder
      */
-    public function selectRelated(Builder $query, $table)
+    protected function selectRelated(Builder $query, $table)
     {
         $connection = $this->connection;
 
