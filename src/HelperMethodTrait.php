@@ -82,7 +82,7 @@ trait HelperMethodTrait
      * @param Builder $builder
      * @return string
      */
-    protected function toSqlWithBindings(Builder $builder)
+    protected function toSqlWithBindings($builder)
     {
         $replacements = array_map('addslashes', $builder->getBindings());
         $sql = $builder->toSql();

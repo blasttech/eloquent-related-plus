@@ -44,6 +44,7 @@ trait RelatedPlusTrait
      */
     protected function setAttributesNull()
     {
+        /** @var Model $this */
         foreach ($this->attributes as $key => $value) {
             if (isset($this->nullable[$key])) {
                 $this->{$key} = empty(trim($value)) ? null : $value;
@@ -106,7 +107,6 @@ trait RelatedPlusTrait
      */
     protected function modelJoinSelects($query, $table, $relatedSelect)
     {
-        /** @var Model $query */
         if (empty($query->getQuery()->columns)) {
             $query->select($this->getTable() . ".*");
         }
@@ -309,7 +309,6 @@ trait RelatedPlusTrait
      */
     public function scopeOrderByCheckModel(Builder $query, $column, $direction)
     {
-        /** @var Model $query */
         $query->orderBy(DB::raw($column), $direction);
 
         if (isset($this->order_relations) && (strpos($column,

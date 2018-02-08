@@ -256,7 +256,6 @@ trait JoinsTrait
      */
     protected function addOrder($builder, $relation, $table)
     {
-        /** @var Model $builder */
         if (!empty($relation->toBase()->orders)) {
             // Get where clauses from the relationship
             foreach ($relation->toBase()->orders as $order) {
