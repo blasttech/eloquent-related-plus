@@ -241,7 +241,7 @@ trait RelatedPlusTrait
             $operator,
             $direction
         ) {
-            $this->relationJoinType($relation, $join, $table, $operator, $direction);
+            return $this->getRelationJoin($relation, $join, $table, $operator, $direction);
         }, null, null, $type, $where);
     }
 

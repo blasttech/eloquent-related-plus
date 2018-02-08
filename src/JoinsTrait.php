@@ -26,7 +26,7 @@ trait JoinsTrait
     use HelperMethodTrait;
 
     /**
-     * Check relation type and join
+     * Check relation type and get join
      *
      * @param Relation $relation
      * @param JoinClause $join
@@ -35,7 +35,7 @@ trait JoinsTrait
      * @param string|null $direction
      * @return Builder|JoinClause
      */
-    protected function relationJoinType($relation, $join, $table, $operator, $direction = null)
+    protected function getRelationJoin($relation, $join, $table, $operator, $direction = null)
     {
         // If a HasOne relation and ordered - ie join to the latest/earliest
         if (class_basename($relation) === 'HasOne' && !empty($relation->toBase()->orders)) {
