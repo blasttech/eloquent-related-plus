@@ -139,6 +139,18 @@ trait JoinsTrait
     }
 
     /**
+     * Add backticks to a table/column
+     *
+     * @param string $column
+     * @return string
+     */
+    protected function addBackticks($column)
+    {
+        return preg_match('/^[0-9a-zA-Z\.]*$/', $column) ?
+            '`' . str_replace(['`', '.'], ['', '`.`'], $column) . '`' : $column;
+    }
+
+    /**
      * Join a HasMany Relation
      *
      * @param Relation $relation
