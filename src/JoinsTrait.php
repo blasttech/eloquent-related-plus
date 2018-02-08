@@ -231,7 +231,6 @@ trait JoinsTrait
      *
      * @return JoinClause
      */
-    public function hasManyJoinWhere(JoinClause $joinClause, $column, $relation, $table, $direction)
     protected function hasManyJoinWhere(JoinClause $joinClause, $column, $relation, $table, $direction)
     {
         return $joinClause->where(
