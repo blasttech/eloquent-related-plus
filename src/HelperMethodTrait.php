@@ -3,7 +3,6 @@
 namespace Blasttech\EloquentRelatedPlus;
 
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
 
 /**
@@ -18,7 +17,6 @@ use Illuminate\Database\Eloquent\Relations\Relation;
  */
 trait HelperMethodTrait
 {
-
     /**
      * Get relation table name and alias
      *
@@ -139,7 +137,6 @@ trait HelperMethodTrait
      */
     protected function removeGlobalScope($query, $scopeName)
     {
-        /** @var Model $this */
         $globalScopes = $this->getGlobalScopes();
         if (isset($globalScopes[$scopeName])) {
             $query->withoutGlobalScope($scopeName);

@@ -146,13 +146,7 @@ trait CustomOrderTrait
             !$this->hasJoin($query, $table, $this->order_relations[$table])) {
             $columnRelations = $this->order_relations[$table];
 
-            $query->modelJoin(
-                $columnRelations,
-                '=',
-                'left',
-                false,
-                false
-            );
+            $query->modelJoin($columnRelations, '=', 'left', false, false);
         }
 
         return $query;
