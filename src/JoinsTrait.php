@@ -136,7 +136,6 @@ trait JoinsTrait
     {
         $column = $this->addBackticks($column);
 
-        /** @var Model $query */
         if ($direction == 'asc') {
             return $query->select(DB::raw('MIN(' . $column . ')'));
         } else {
