@@ -155,7 +155,7 @@ trait RelatedPlusTrait
     public function scopeOrderByCustom(Builder $query, $orderField, $direction)
     {
         if ($this->hasOrderFieldsAndDefaults($orderField, $direction)) {
-            $query = RelatedPlusHelpers::removeGlobalScope($this->getModel(), $query, 'order');
+            $query = RelatedPlusHelpers::removeGlobalScopes($this->getModel(), $query, 'order');
         }
 
         return $query->setCustomOrder($orderField, $direction);

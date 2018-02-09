@@ -131,19 +131,20 @@ class RelatedPlusHelpers
     }
 
     /**
-     * Remove a global scope if it exists
+     * Remove any global scopes which contain $scopeName in their name
      *
-     * @param Model $model
+     * @param RelatedPlusTrait|Model $model
      * @param Builder $query
      * @param string $scopeName
-     * @return Builder
+     * @return Relation|Builder
      */
-    public static function removeGlobalScope($model, $query, $scopeName)
+    public static function removeGlobalScopes($model, $query, $scopeName)
     {
-        $globalScopes = $model->getGlobalScopes();
-        if (isset($globalScopes[$scopeName])) {
-            $query->withoutGlobalScope($scopeName);
-        }
+        $query->withoutGlobalScopes(collect($model->getGlobalScopes())->keys()->filter(function (
+            $value
+        ) use ($scopeName) {
+            return stripos($value, $scopeName) !== false;
+        })->toArray());
 
         return $query;
     }
