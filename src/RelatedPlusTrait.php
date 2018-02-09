@@ -98,6 +98,13 @@ trait RelatedPlusTrait
     }
 
     /**
+     * Get the model.
+     *
+     * @return Model
+     */
+    abstract public function getModel();
+
+    /**
      * Add selects for model join
      *
      * @param Builder $query
