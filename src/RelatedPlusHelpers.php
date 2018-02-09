@@ -3,10 +3,11 @@
 namespace Blasttech\EloquentRelatedPlus;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
 
 /**
- * Trait HelperMethodTrait
+ * Class RelatedPlusHelpers
  *
  * @property array order_fields
  * @property array order_defaults
@@ -15,7 +16,7 @@ use Illuminate\Database\Eloquent\Relations\Relation;
  * @property array search_fields
  * @property string connection
  */
-trait HelperMethodTrait
+class RelatedPlusHelpers
 {
     /**
      * Get relation table name and alias
@@ -23,7 +24,7 @@ trait HelperMethodTrait
      * @param Relation $relation
      * @return \stdClass
      */
-    protected function getRelationTables($relation)
+    public static function getRelationTables($relation)
     {
         $table = new \stdClass();
         $table->name = $relation->getRelated()->getTable();
@@ -41,10 +42,11 @@ trait HelperMethodTrait
      * parseRelationNames('customer') returns [$user->customer()]
      * parseRelationNames('customer.contact') returns [$user->customer(), $user->customer->contact()]
      *
+     * @param Model $model
      * @param string $relationName
      * @return Relation[]
      */
-    protected function parseRelationNames($relationName)
+    public static function parseRelationNames($model, $relationName)
     {
         $relationNames = explode('.', $relationName);
         $parentRelationName = null;
@@ -52,8 +54,8 @@ trait HelperMethodTrait
 
         foreach ($relationNames as $relationName) {
             if (is_null($parentRelationName)) {
-                $relations[] = $this->$relationName();
-                $parentRelationName = $this->$relationName()->getRelated();
+                $relations[] = $model->$relationName();
+                $parentRelationName = $model->$relationName()->getRelated();
             } else {
                 $relations[] = $parentRelationName->$relationName();
             }
@@ -68,7 +70,7 @@ trait HelperMethodTrait
      * @param Builder $builder
      * @return string
      */
-    protected function toSqlWithBindings($builder)
+    public static function toSqlWithBindings($builder)
     {
         $replacements = array_map('addslashes', $builder->getBindings());
         $sql = $builder->toSql();
@@ -95,7 +97,7 @@ trait HelperMethodTrait
      * @param string $column
      * @return string
      */
-    protected function columnWithTableName($table, $column)
+    public static function columnWithTableName($table, $column)
     {
         return (preg_match('/(' . $table . '\.|`' . $table . '`)/i', $column) > 0 ? '' : $table . '.') . $column;
     }
@@ -106,7 +108,7 @@ trait HelperMethodTrait
      * @param string $column
      * @return string
      */
-    protected function getTableFromColumn($column)
+    public static function getTableFromColumn($column)
     {
         $periodPos = strpos($column, '.');
 
@@ -119,7 +121,7 @@ trait HelperMethodTrait
      * @param \stdClass $table
      * @return string
      */
-    protected function getTableWithAlias($table)
+    public static function getTableWithAlias($table)
     {
         if ($table->alias !== '' && $table->name !== $table->alias) {
             return $table->name . ' AS ' . $table->alias;
@@ -131,13 +133,14 @@ trait HelperMethodTrait
     /**
      * Remove a global scope if it exists
      *
+     * @param Model $model
      * @param Builder $query
      * @param string $scopeName
      * @return Builder
      */
-    protected function removeGlobalScope($query, $scopeName)
+    public static function removeGlobalScope($model, $query, $scopeName)
     {
-        $globalScopes = $this->getGlobalScopes();
+        $globalScopes = $model->getGlobalScopes();
         if (isset($globalScopes[$scopeName])) {
             $query->withoutGlobalScope($scopeName);
         }
