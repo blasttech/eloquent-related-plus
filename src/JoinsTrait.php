@@ -36,8 +36,12 @@ trait JoinsTrait
     protected function getRelationJoin($relation, $join, $table, $operator, $direction = null)
     {
         // If a HasOne relation and ordered - ie join to the latest/earliest
-        if (class_basename($relation) === 'HasOne' && !empty($relation->toBase()->orders)) {
-            return $this->hasOneJoin($relation, $join);
+        if (class_basename($relation) === 'HasOne') {
+            $relation = RelatedPlusHelpers::removeGlobalScopes($relation->getRelated(), $relation, 'order');
+
+            if (!empty($relation->toBase()->orders)) {
+                return $this->hasOneJoin($relation, $join);
+            }
         }
 
         return $this->hasManyJoin($relation, $join, $table, $operator, $direction);
