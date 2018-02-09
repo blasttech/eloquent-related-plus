@@ -77,7 +77,7 @@ trait JoinsTrait
             )
             ->setBindings($relation->getBindings());
 
-        return DB::raw('(' . $this->toSqlWithBindings($subQuery) . ')');
+        return DB::raw('(' . RelatedPlusHelpers::toSqlWithBindings($subQuery) . ')');
     }
 
     /**
@@ -208,7 +208,11 @@ trait JoinsTrait
             ->where('type', 'Basic')
             ->map(function ($where) use ($table) {
                 // Add table name to column if it is absent
-                return [$this->columnWithTableName($table, $where['column']), $where['operator'], $where['value']];
+                return [
+                    RelatedPlusHelpers::columnWithTableName($table, $where['column']),
+                    $where['operator'],
+                    $where['value']
+                ];
             })->toArray();
 
         if (!empty($wheres)) {
@@ -263,7 +267,7 @@ trait JoinsTrait
         if (!empty($relation->toBase()->orders)) {
             // Get where clauses from the relationship
             foreach ($relation->toBase()->orders as $order) {
-                $builder->orderBy($this->columnWithTableName($table, $order['column']), $order['direction']);
+                $builder->orderBy(RelatedPlusHelpers::columnWithTableName($table, $order['column']), $order['direction']);
             }
         }
 

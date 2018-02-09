@@ -23,7 +23,7 @@ use Illuminate\Support\Facades\Schema;
  */
 trait RelatedPlusTrait
 {
-    use CustomOrderTrait, HelperMethodTrait, JoinsTrait, SearchTrait;
+    use CustomOrderTrait, JoinsTrait, SearchTrait;
 
     /**
      * Boot method for trait
@@ -85,8 +85,8 @@ trait RelatedPlusTrait
         $relatedSelect = true,
         $direction = null
     ) {
-        foreach ($this->parseRelationNames($relationName) as $relation) {
-            $table = $this->getRelationTables($relation);
+        foreach (RelatedPlusHelpers::parseRelationNames($this->getModel(), $relationName) as $relation) {
+            $table = RelatedPlusHelpers::getRelationTables($relation);
 
             // Add selects
             $query = $this->modelJoinSelects($query, $table, $relatedSelect);
@@ -148,7 +148,7 @@ trait RelatedPlusTrait
     public function scopeOrderByCustom(Builder $query, $orderField, $direction)
     {
         if ($this->hasOrderFieldsAndDefaults($orderField, $direction)) {
-            $query = $this->removeGlobalScope($query, 'order');
+            $query = RelatedPlusHelpers::removeGlobalScope($this->getModel(), $query, 'order');
         }
 
         return $query->setCustomOrder($orderField, $direction);
@@ -233,7 +233,7 @@ trait RelatedPlusTrait
         $where,
         $direction = null
     ) {
-        $fullTableName = $this->getTableWithAlias($table);
+        $fullTableName = RelatedPlusHelpers::getTableWithAlias($table);
 
         return $query->join($fullTableName, function (JoinClause $join) use (
             $table,
@@ -273,7 +273,7 @@ trait RelatedPlusTrait
      */
     public function scopeSetSubquery(Builder $query, $model)
     {
-        $sql = $this->toSqlWithBindings($model);
+        $sql = RelatedPlusHelpers::toSqlWithBindings($model);
         $table = $model->getQuery()->from;
 
         return $query
@@ -313,7 +313,7 @@ trait RelatedPlusTrait
 
         if (isset($this->order_relations) && (strpos($column, '.') !== false ||
                 isset($this->order_relations[$column]))) {
-            $query = $this->joinRelatedTable($query, $this->getTableFromColumn($column));
+            $query = $this->joinRelatedTable($query, RelatedPlusHelpers::getTableFromColumn($column));
         }
 
         return $query;
