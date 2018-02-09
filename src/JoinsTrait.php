@@ -271,7 +271,8 @@ trait JoinsTrait
         if (!empty($relation->toBase()->orders)) {
             // Get where clauses from the relationship
             foreach ($relation->toBase()->orders as $order) {
-                $builder->orderBy(RelatedPlusHelpers::columnWithTableName($table, $order['column']), $order['direction']);
+                $builder->orderBy(RelatedPlusHelpers::columnWithTableName($table, $order['column']),
+                    $order['direction']);
             }
         }
 
