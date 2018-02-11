@@ -115,12 +115,36 @@ trait JoinsTrait
     {
         // Get keys with table names
         if ($relation instanceof BelongsTo) {
-            $first = $relation->getOwnerKey();
-            $second = $relation->getForeignKey();
-        } else {
-            $first = $relation->getQualifiedParentKeyName();
-            $second = $relation->getQualifiedForeignKeyName();
+            return $this->getBelongsToColumns($relation);
         }
+
+        return $this->getHasOneOrManyColumns($relation);
+    }
+
+    /**
+     * Get the join columns for a BelongsTo relation
+     *
+     * @param BelongsTo $relation
+     * @return object
+     */
+    protected function getBelongsToColumns($relation)
+    {
+        $first = $relation->getOwnerKey();
+        $second = $relation->getForeignKey();
+
+        return (object)['first' => $first, 'second' => $second];
+    }
+
+    /**
+     * Get the join columns for a HasOneOrMany relation
+     *
+     * @param HasOneOrMany $relation
+     * @return object
+     */
+    protected function getHasOneOrManyColumns($relation)
+    {
+        $first = $relation->getQualifiedParentKeyName();
+        $second = $relation->getQualifiedForeignKeyName();
 
         return (object)['first' => $first, 'second' => $second];
     }
