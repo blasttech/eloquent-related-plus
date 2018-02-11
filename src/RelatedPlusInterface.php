@@ -38,7 +38,6 @@ interface RelatedPlusInterface
      * Join a model
      *
      * @param Builder $query
-     * @param \stdClass $table
      * @param \Illuminate\Database\Eloquent\Relations\Relation $relation
      * @param string $operator
      * @param string $type
@@ -49,7 +48,6 @@ interface RelatedPlusInterface
      */
     public function scopeRelationJoin(
         Builder $query,
-        $table,
         $relation,
         $operator,
         $type,

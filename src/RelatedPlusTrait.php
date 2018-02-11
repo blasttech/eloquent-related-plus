@@ -4,7 +4,8 @@ namespace Blasttech\EloquentRelatedPlus;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOneOrMany;
 use Illuminate\Database\Query\Expression;
 use Illuminate\Database\Query\JoinClause;
 use Illuminate\Support\Facades\DB;
@@ -23,7 +24,7 @@ use Illuminate\Support\Facades\Schema;
  */
 trait RelatedPlusTrait
 {
-    use CustomOrderTrait, JoinsTrait, SearchTrait;
+    use CustomOrderTrait, SearchTrait;
 
     /**
      * Boot method for trait
@@ -85,33 +86,72 @@ trait RelatedPlusTrait
         $relatedSelect = true,
         $direction = null
     ) {
-        foreach (RelatedPlusHelpers::parseRelationNames($this->getModel(), $relationName) as $relation) {
-            $table = RelatedPlusHelpers::getRelationTables($relation);
-
+        foreach ($this->parseRelationNames($this->getModel(), $relationName) as $relation) {
             // Add selects
-            $query = $this->modelJoinSelects($query, $table, $relatedSelect);
+            $query = $this->modelJoinSelects($query, $relation, $relatedSelect);
 
-            $query->relationJoin($table, $relation, $operator, $type, $where, $direction);
+            $query->relationJoin($relation, $operator, $type, $where, $direction);
         }
 
         return $query;
     }
 
     /**
+     * Get the relations from a relation name
+     * $relationName can be a single relation
+     * Usage for User model:
+     * parseRelationNames('customer') returns [$user->customer()]
+     * parseRelationNames('customer.contact') returns [$user->customer(), $user->customer->contact()]
+     *
+     * @param Model $model
+     * @param string $relationName
+     * @return RelationPlus[]
+     */
+    public function parseRelationNames($model, $relationName)
+    {
+        $relationNames = explode('.', $relationName);
+        $parentRelation = null;
+        $relations = [];
+
+        foreach ($relationNames as $relationName) {
+            $relation = $this->getRelationFromName($model, $parentRelation, $relationName);
+            $relations[] = new RelationPlus($relation);
+            $parentRelation = $relation->getModel();
+        }
+
+        return $relations;
+    }
+
+    /**
+     * @param Model $model
+     * @param BelongsTo|HasOneOrMany|null $parentRelation
+     * @param string $relationName
+     * @return BelongsTo|HasOneOrMany
+     */
+    protected function getRelationFromName($model, $parentRelation, $relationName)
+    {
+        if (is_null($parentRelation)) {
+            return $model->$relationName();
+        }
+
+        return $parentRelation->$relationName();
+    }
+
+    /**
      * Add selects for model join
      *
      * @param Builder $query
-     * @param \stdClass $table
+     * @param RelationPlus $relation
      * @param bool $relatedSelect
      * @return mixed
      */
-    protected function modelJoinSelects($query, $table, $relatedSelect)
+    protected function modelJoinSelects($query, $relation, $relatedSelect)
     {
         if (empty($query->getQuery()->columns)) {
             $query->select($this->getTable() . ".*");
         }
         if ($relatedSelect) {
-            $query = $this->selectRelated($query, $table);
+            $query = $this->selectRelated($query, $relation);
         }
 
         return $query;
@@ -121,16 +161,16 @@ trait RelatedPlusTrait
      * Add select for related table fields
      *
      * @param Builder $query
-     * @param \stdClass $table
+     * @param RelationPlus $relation
      * @return Builder
      */
-    protected function selectRelated(Builder $query, $table)
+    protected function selectRelated(Builder $query, $relation)
     {
         $connection = $this->connection;
 
-        foreach (Schema::connection($connection)->getColumnListing($table->name) as $relatedColumn) {
+        foreach (Schema::connection($connection)->getColumnListing($relation->tableName) as $relatedColumn) {
             $query->addSelect(
-                new Expression("`$table->alias`.`$relatedColumn` AS `$table->alias.$relatedColumn`")
+                new Expression("`$relation->tableAlias`.`$relatedColumn` AS `$relation->tableAlias.$relatedColumn`")
             );
         }
 
@@ -216,8 +256,7 @@ trait RelatedPlusTrait
      * Join a model
      *
      * @param Builder $query
-     * @param \stdClass $table
-     * @param Relation $relation
+     * @param RelationPlus $relation
      * @param string $operator
      * @param string $type
      * @param boolean $where
@@ -226,22 +265,20 @@ trait RelatedPlusTrait
      */
     public function scopeRelationJoin(
         Builder $query,
-        $table,
         $relation,
         $operator,
         $type,
         $where,
         $direction = null
     ) {
-        $fullTableName = RelatedPlusHelpers::getTableWithAlias($table);
+        $fullTableName = $relation->getTableWithAlias();
 
         return $query->join($fullTableName, function (JoinClause $join) use (
-            $table,
             $relation,
             $operator,
             $direction
         ) {
-            return $this->getRelationJoin($relation, $join, $table, $operator, $direction);
+            return $relation->getRelationJoin($join, $operator, $direction);
         }, null, null, $type, $where);
     }
 
