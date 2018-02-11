@@ -122,12 +122,25 @@ trait CustomOrderTrait
      */
     protected function setOrder($query, $column, $direction)
     {
-        if (!is_array($this->order_fields[$column])) {
-            $query->orderByCheckModel($this->order_fields[$column], $direction);
-        } else {
-            foreach ($this->order_fields[$column] as $dbField) {
-                $query->orderByCheckModel($dbField, $direction);
-            }
+        if (is_array($this->order_fields[$column])) {
+            return $this->setOrders($query, $column, $direction);
+        }
+
+        return $query->orderByCheckModel($this->order_fields[$column], $direction);
+    }
+
+    /**
+     * Set order based on multiple order_fields
+     *
+     * @param Builder $query
+     * @param string $column
+     * @param string $direction
+     * @return Builder
+     */
+    protected function setOrders($query, $column, $direction)
+    {
+        foreach ($this->order_fields[$column] as $dbField) {
+            $query->orderByCheckModel($dbField, $direction);
         }
 
         return $query;
