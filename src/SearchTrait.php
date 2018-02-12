@@ -81,14 +81,12 @@ trait SearchTrait
         return $query->orWhere(function (Builder $query) use (
             $searchText,
             $searchColumn,
-            $searchFieldParameters,
             $relation,
             $relatedTable
         ) {
             return $query->orWhereHas($relation, function (Builder $query2) use (
                 $searchText,
                 $searchColumn,
-                $searchFieldParameters,
                 $relatedTable
             ) {
                 return $query2->where($relatedTable . '.' . $searchColumn, 'like', $searchText . '%');
