@@ -49,7 +49,7 @@ class RelatedPlusHelpers
     {
         $periodPos = strpos($column, '.');
 
-        return ($periodPos !== false ? substr($column, 0, $periodPos) : $column);
+        return ($periodPos === false ? $column : substr($column, 0, $periodPos));
     }
 
     /**
