@@ -105,12 +105,12 @@ trait RelatedPlusTrait
      * parseRelationNames('customer.contact') returns [$user->customer(), $user->customer->contact()]
      *
      * @param Model $model
-     * @param string $relationName
+     * @param string $relationNameString
      * @return RelationPlus[]
      */
-    public function parseRelationNames($model, $relationName)
+    protected function parseRelationNames($model, $relationNameString)
     {
-        $relationNames = explode('.', $relationName);
+        $relationNames = explode('.', $relationNameString);
         $parentRelation = null;
         $relations = [];
 
