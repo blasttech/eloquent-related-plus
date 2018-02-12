@@ -22,6 +22,7 @@ use Illuminate\Support\Facades\Schema;
  * @property array order_with
  * @property array search_fields
  * @property string connection
+ * @method Model getModel()
  */
 trait RelatedPlusTrait
 {
