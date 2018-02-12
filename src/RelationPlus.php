@@ -71,7 +71,8 @@ class RelationPlus
     {
         // If a HasOne relation and ordered - ie join to the latest/earliest
         if (class_basename($this->relation) === 'HasOne') {
-            $relation = RelatedPlusHelpers::removeGlobalScopes($this->relation->getRelated(), $this->relation, 'order');
+            $this->relation = RelatedPlusHelpers::removeGlobalScopes($this->relation->getRelated(), $this->relation,
+                'order');
 
             if (!empty($this->getOrders())) {
                 return $this->hasOneJoin($join);
@@ -224,15 +225,14 @@ class RelationPlus
     private function hasManyJoin($join, $operator, $direction)
     {
         // Get relation join columns
-        $joinColumns = $this->getJoinColumns();
-        $joinColumns = $this->replaceColumnTables($joinColumns);
+        $joinColumns = $this->replaceColumnTables($this->getJoinColumns());
 
         $join->on($joinColumns->first, $operator, $joinColumns->second);
 
         // Add any where clauses from the relationship
         $join = $this->addRelatedWhereConstraints($join); // $table->alias
 
-        if (!is_null($direction) && get_class($this) === HasMany::class) {
+        if (!is_null($direction) && get_class($this->relation) === HasMany::class) {
             $join = $this->hasManyJoinWhere($join, $joinColumns->first, $direction); // $table->alias,
         }
 
