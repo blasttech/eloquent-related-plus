@@ -73,12 +73,22 @@ class RelationPlus
         if (class_basename($this->relation) === 'HasOne') {
             $relation = RelatedPlusHelpers::removeGlobalScopes($this->relation->getRelated(), $this->relation, 'order');
 
-            if (!empty($relation->toBase()->orders)) {
+            if (!empty($this->getOrders())) {
                 return $this->hasOneJoin($join);
             }
         }
 
         return $this->hasManyJoin($join, $operator, $direction);
+    }
+
+    /**
+     * Get the orders for the relation
+     *
+     * @return array
+     */
+    private function getOrders()
+    {
+        return $this->relation->toBase()->orders;
     }
 
     /**
@@ -90,7 +100,7 @@ class RelationPlus
     private function hasOneJoin($join)
     {
         // Get first relation order (should only be one)
-        $order = $this->relation->toBase()->orders[0];
+        $order = $this->getOrders()[0];
 
         return $join->on($order['column'], $this->hasOneJoinSql($order));
     }
@@ -321,11 +331,10 @@ class RelationPlus
      */
     private function addOrder($builder)
     {
-        if (!empty($this->relation->toBase()->orders)) {
+        if (!empty($this->getOrders())) {
             // Get where clauses from the relationship
-            foreach ($this->relation->toBase()->orders as $order) {
-                $builder->orderBy($this->columnWithTableName($order['column']),
-                    $order['direction']);
+            foreach ($this->getOrders() as $order) {
+                $builder->orderBy($this->columnWithTableName($order['column']), $order['direction']);
             }
         }
 
