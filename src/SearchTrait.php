@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 /**
  * Trait SearchTrait
  *
+ * @property array attributes
  * @property array order_fields
  * @property array order_defaults
  * @property array order_relations

@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Schema;
 /**
  * Trait RelatedPlusTrait
  *
+ * @property array attributes
  * @property array nullable
  * @property array order_fields
  * @property array order_defaults

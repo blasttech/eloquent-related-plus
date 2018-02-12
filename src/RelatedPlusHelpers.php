@@ -9,12 +9,7 @@ use Illuminate\Database\Eloquent\Relations\Relation;
 /**
  * Class RelatedPlusHelpers
  *
- * @property array order_fields
- * @property array order_defaults
- * @property array order_relations
- * @property array order_with
- * @property array search_fields
- * @property string connection
+ * Static helper functions
  */
 class RelatedPlusHelpers
 {
@@ -61,7 +56,7 @@ class RelatedPlusHelpers
      * Remove any global scopes which contain $scopeName in their name
      *
      * @param RelatedPlusTrait|Model $model
-     * @param Builder $query
+     * @param Relation|Builder $query
      * @param string $scopeName
      * @return Relation|Builder
      */

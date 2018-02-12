@@ -8,6 +8,7 @@ use InvalidArgumentException;
 /**
  * Trait CustomOrderTrait
  *
+ * @property array attributes
  * @property array order_fields
  * @property array order_defaults
  * @property array order_relations
@@ -81,14 +82,13 @@ trait CustomOrderTrait
     }
 
     /**
-     * Override column if provided column not valid
+     * Override column if provided column not valid. If $column not in order_fields list, use default.
      *
      * @param string $column
      * @return string
      */
     protected function setOrderColumn($column)
     {
-        // If $column not in order_fields list, use default
         if ($column == '' || !isset($this->order_fields[$column])) {
             $column = $this->order_defaults['field'];
         }
@@ -97,14 +97,13 @@ trait CustomOrderTrait
     }
 
     /**
-     * Override direction if provided direction not valid
+     * Override direction if provided direction not valid. If $direction not asc or desc, use default.
      *
      * @param string $direction
      * @return string
      */
     protected function setOrderDirection($direction)
     {
-        // If $direction not asc or desc, use default
         if ($direction == '' || !in_array(strtoupper($direction), ['ASC', 'DESC'])) {
             $direction = $this->order_defaults['dir'];
         }

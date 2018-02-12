@@ -28,6 +28,9 @@ class RelationPlus
     public $tableAlias;
 
     /**
+     * Initialise $relation, $tableName and $tableAlias
+     * If using a 'table' AS 'tableAlias' in a from statement, otherwise alias will be the table name
+     *
      * @var BelongsTo|HasOneOrMany $relation
      */
     private $relation;
@@ -37,7 +40,6 @@ class RelationPlus
         $this->setRelation($relation);
         $this->tableName = $this->relation->getRelated()->getTable();
         $from = explode(' ', $this->relation->getQuery()->getQuery()->from);
-        // if using a 'table' AS 'tableAlias' in a from statement, otherwise alias will be the table name
         $this->tableAlias = array_pop($from);
     }
 
