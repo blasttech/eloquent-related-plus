@@ -191,7 +191,7 @@ trait CustomOrderTrait
     protected function isJoinedToTable(Builder $builder, $table)
     {
         $joins = $builder->getQuery()->joins;
-        if (!is_null($joins)) {
+        if (!empty($joins)) {
             foreach ($joins as $joinClause) {
                 if ($joinClause->table == $table) {
                     return true;
