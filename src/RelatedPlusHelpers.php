@@ -21,10 +21,11 @@ class RelatedPlusHelpers
      */
     public static function toSqlWithBindings($builder)
     {
-        $replacements = array_map('addslashes', $builder->getBindings());
+        $replacements = $builder->getBindings();
         $sql = $builder->toSql();
 
         foreach ($replacements as &$replacement) {
+            $replacement = addslashes($replacement);
             if (!is_numeric($replacement)) {
                 $replacement = '"' . $replacement . '"';
             }
