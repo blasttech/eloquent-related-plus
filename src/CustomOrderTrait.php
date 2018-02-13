@@ -215,4 +215,42 @@ trait CustomOrderTrait
 
         return !is_null($eagerLoads) && in_array($relation, $eagerLoads);
     }
+
+    /**
+     * Execute a scope in the order_width settings
+     *
+     * @param Builder $query
+     * @param string $order
+     * @return Builder
+     */
+    protected function addOrderWith(Builder $query, $order)
+    {
+        $with = 'with' . $this->order_with[$order];
+
+        return $query->$with();
+    }
+
+    /**
+     * Add join from order_fields
+     *
+     * @param Builder $query
+     * @param string $order
+     * @return Builder
+     */
+    protected function addOrderJoin(Builder $query, $order)
+    {
+        $orderOption = (explode('.', $this->order_fields[$order]))[0];
+
+        if (isset($this->order_relations[$orderOption])) {
+            $query->modelJoin(
+                $this->order_relations[$orderOption],
+                '=',
+                'left',
+                false,
+                false
+            );
+        }
+
+        return $query;
+    }
 }
