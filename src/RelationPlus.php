@@ -73,8 +73,7 @@ class RelationPlus
     {
         // If a HasOne relation and ordered - ie join to the latest/earliest
         if (class_basename($this->relation) === 'HasOne') {
-            $this->relation = $this->removeGlobalScopes($this->relation->getRelated(), $this->relation,
-                'order');
+            $this->relation = $this->removeGlobalScopes($this->relation->getRelated(), $this->relation, 'order');
 
             if (!empty($this->getOrders())) {
                 return $this->hasOneJoin($join);
@@ -292,8 +291,8 @@ class RelationPlus
      */
     private function columnWithTableName($column)
     {
-        return (preg_match('/(' . $this->tableAlias . '\.|`' . $this->tableAlias . '`)/i',
-                $column) > 0 ? '' : $this->tableAlias . '.') . $column;
+        return (preg_match('/(' . $this->tableAlias . '\.|`' . $this->tableAlias . '`)/i', $column) > 0
+                ? '' : $this->tableAlias . '.') . $column;
     }
 
     /**

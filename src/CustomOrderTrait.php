@@ -49,7 +49,9 @@ trait CustomOrderTrait
     {
         if (!isset($this->$attributeName) || !is_array($this->$attributeName) ||
             (!$canBeEmpty && empty($this->$attributeName))) {
-            throw new InvalidArgumentException(get_class($this) . ' ' . $attributeName . ' property not set correctly.');
+            throw new InvalidArgumentException(
+                get_class($this) . ' ' . $attributeName . ' property not set correctly.'
+            );
         }
 
         return true;
