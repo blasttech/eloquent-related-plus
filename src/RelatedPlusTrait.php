@@ -26,7 +26,7 @@ use Illuminate\Support\Facades\Schema;
  */
 trait RelatedPlusTrait
 {
-    use CustomOrderTrait, SearchTrait;
+    use CustomOrderTrait, SearchTrait, HelpersTrait;
 
     /**
      * Boot method for trait
@@ -190,7 +190,7 @@ trait RelatedPlusTrait
     public function scopeOrderByCustom(Builder $query, $orderField, $direction)
     {
         if ($this->hasOrderFieldsAndDefaults($orderField, $direction)) {
-            $query = RelatedPlusHelpers::removeGlobalScopes($this->getModel(), $query, 'order');
+            $query = $this->removeGlobalScopes($this->getModel(), $query, 'order');
         }
 
         return $query->setCustomOrder($orderField, $direction);
@@ -312,7 +312,7 @@ trait RelatedPlusTrait
      */
     public function scopeSetSubquery(Builder $query, $model)
     {
-        $sql = RelatedPlusHelpers::toSqlWithBindings($model);
+        $sql = $this->toSqlWithBindings($model);
         $table = $model->getQuery()->from;
 
         return $query
@@ -352,7 +352,7 @@ trait RelatedPlusTrait
 
         if (isset($this->order_relations) && (strpos($column, '.') !== false ||
                 isset($this->order_relations[$column]))) {
-            $query = $this->joinRelatedTable($query, RelatedPlusHelpers::getTableFromColumn($column));
+            $query = $this->joinRelatedTable($query, $this->getTableFromColumn($column));
         }
 
         return $query;

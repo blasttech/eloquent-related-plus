@@ -4,14 +4,16 @@ namespace Blasttech\EloquentRelatedPlus;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOneOrMany;
 use Illuminate\Database\Eloquent\Relations\Relation;
 
 /**
- * Class RelatedPlusHelpers
+ * Trait RelatedPlusHelpers
  *
  * Static helper functions
  */
-class RelatedPlusHelpers
+trait HelpersTrait
 {
     /**
      * Return the sql for a query with the bindings replaced with the binding values
@@ -19,7 +21,7 @@ class RelatedPlusHelpers
      * @param Builder $builder
      * @return string
      */
-    public static function toSqlWithBindings($builder)
+    public function toSqlWithBindings($builder)
     {
         $replacements = $builder->getBindings();
         $sql = $builder->toSql();
@@ -46,7 +48,7 @@ class RelatedPlusHelpers
      * @param string $column
      * @return string
      */
-    public static function getTableFromColumn($column)
+    public function getTableFromColumn($column)
     {
         $periodPos = strpos($column, '.');
 
@@ -59,9 +61,9 @@ class RelatedPlusHelpers
      * @param RelatedPlusTrait|Model $model
      * @param Relation|Builder $query
      * @param string $scopeName
-     * @return Relation|Builder
+     * @return Relation|BelongsTo|HasOneOrMany|Builder
      */
-    public static function removeGlobalScopes($model, $query, $scopeName)
+    public function removeGlobalScopes($model, $query, $scopeName)
     {
         $query->withoutGlobalScopes(collect($model->getGlobalScopes())->keys()->filter(function (
             $value

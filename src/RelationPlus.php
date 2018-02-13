@@ -17,6 +17,8 @@ use Illuminate\Database\Query\JoinClause;
  */
 class RelationPlus
 {
+    use HelpersTrait;
+
     /**
      * @var string $tableName
      */
@@ -71,7 +73,7 @@ class RelationPlus
     {
         // If a HasOne relation and ordered - ie join to the latest/earliest
         if (class_basename($this->relation) === 'HasOne') {
-            $this->relation = RelatedPlusHelpers::removeGlobalScopes($this->relation->getRelated(), $this->relation,
+            $this->relation = $this->removeGlobalScopes($this->relation->getRelated(), $this->relation,
                 'order');
 
             if (!empty($this->getOrders())) {
@@ -123,7 +125,7 @@ class RelationPlus
             )
             ->setBindings($this->relation->getBindings());
 
-        return DB::raw('(' . RelatedPlusHelpers::toSqlWithBindings($subQuery) . ')');
+        return DB::raw('(' . $this->toSqlWithBindings($subQuery) . ')');
     }
 
     /**
@@ -307,7 +309,7 @@ class RelationPlus
     {
         return $joinClause->where(
             $column,
-            function ($subQuery) use ($direction, $column) {
+            function ($subQuery) use ($column, $direction) {
                 $subQuery = $this->joinOne(
                     $subQuery->from($this->tableAlias),
                     $column,
