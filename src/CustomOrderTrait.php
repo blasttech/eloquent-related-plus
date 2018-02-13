@@ -41,20 +41,34 @@ trait CustomOrderTrait
     }
 
     /**
+     * Check if array property exists
+     *
      * @param string $attributeName
      * @param bool $canBeEmpty
      * @return bool
      */
     protected function hasProperty($attributeName, $canBeEmpty = true)
     {
-        if (!isset($this->$attributeName) || !is_array($this->$attributeName) ||
-            (!$canBeEmpty && empty($this->$attributeName))) {
+        if (!$this->isValidProperty($attributeName, $canBeEmpty)) {
             throw new InvalidArgumentException(
                 get_class($this) . ' ' . $attributeName . ' property not set correctly.'
             );
         }
 
         return true;
+    }
+
+    /**
+     * Check if property exists and is array
+     *
+     * @param $attributeName
+     * @param bool $canBeEmpty
+     * @return bool
+     */
+    protected function isValidProperty($attributeName, $canBeEmpty = true)
+    {
+        return isset($this->$attributeName) && is_array($this->$attributeName)
+            && ($canBeEmpty || !empty($this->$attributeName));
     }
 
     /**
