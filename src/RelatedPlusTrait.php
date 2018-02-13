@@ -23,6 +23,7 @@ use Illuminate\Support\Facades\Schema;
  * @property array search_fields
  * @property string connection
  * @method Model getModel()
+ * @method string getTable()
  */
 trait RelatedPlusTrait
 {
@@ -54,13 +55,6 @@ trait RelatedPlusTrait
             }
         }
     }
-
-    /**
-     * Get the table associated with the model.
-     *
-     * @return string
-     */
-    abstract public function getTable();
 
     /**
      * Add joins for one or more relations
