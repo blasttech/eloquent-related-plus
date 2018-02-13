@@ -44,19 +44,6 @@ trait RelatedPlusTrait
     }
 
     /**
-     * Set empty fields to null
-     */
-    protected function setAttributesNull()
-    {
-        /** @var Model $this */
-        foreach ($this->attributes as $key => $value) {
-            if (isset($this->nullable[$key])) {
-                $this->{$key} = empty(trim($value)) ? null : $value;
-            }
-        }
-    }
-
-    /**
      * Add joins for one or more relations
      * This determines the foreign key relations automatically to prevent the need to figure out the columns.
      * Usages:

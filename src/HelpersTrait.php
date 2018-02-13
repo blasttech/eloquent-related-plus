@@ -73,4 +73,18 @@ trait HelpersTrait
 
         return $query;
     }
+
+    /**
+     * Set empty fields to null
+     */
+    public function setAttributesNull()
+    {
+        /** @var Model $this */
+        foreach ($this->attributes as $key => $value) {
+            if (isset($this->nullable[$key])) {
+                $this->{$key} = empty(trim($value)) ? null : $value;
+            }
+        }
+    }
+
 }
