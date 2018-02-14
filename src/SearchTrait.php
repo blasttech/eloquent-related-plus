@@ -46,20 +46,20 @@ trait SearchTrait
      * @param Builder $query
      * @param string $table
      * @param string $searchField
-     * @param array $searchFieldParameters
+     * @param array $fieldParameters
      * @param string $searchText
      * @return Builder
      */
-    protected function checkSearchField($query, $table, $searchField, $searchFieldParameters, $searchText)
+    protected function checkSearchField($query, $table, $searchField, $fieldParameters, $searchText)
     {
-        if (!isset($searchFieldParameters['regex']) || preg_match($searchFieldParameters['regex'], $searchText)) {
-            $searchColumn = is_array($searchFieldParameters) ? $searchField : $searchFieldParameters;
+        if (!isset($fieldParameters['regex']) || preg_match($fieldParameters['regex'], $searchText)) {
+            $searchColumn = is_array($fieldParameters) ? $searchField : $fieldParameters;
 
-            if (isset($searchFieldParameters['relation'])) {
-                return $this->searchRelation($query, $searchFieldParameters, $searchColumn, $searchText);
-            } else {
-                return $this->searchThis($query, $searchFieldParameters, $table, $searchColumn, $searchText);
+            if (isset($fieldParameters['relation'])) {
+                return $this->searchRelation($query, $fieldParameters, $searchColumn, $searchText);
             }
+
+            return $this->searchThis($query, $fieldParameters, $table, $searchColumn, $searchText);
         }
 
         return $query;
@@ -69,14 +69,14 @@ trait SearchTrait
      * Add where condition to search a relation
      *
      * @param Builder $query
-     * @param array $searchFieldParameters
+     * @param array $fieldParameters
      * @param string $searchColumn
      * @param string $searchText
      * @return Builder
      */
-    protected function searchRelation(Builder $query, $searchFieldParameters, $searchColumn, $searchText)
+    protected function searchRelation(Builder $query, $fieldParameters, $searchColumn, $searchText)
     {
-        $relation = $searchFieldParameters['relation'];
+        $relation = $fieldParameters['relation'];
         $relatedTable = $this->$relation()->getRelated()->getTable();
 
         return $query->orWhere(function (Builder $query) use (
@@ -99,16 +99,16 @@ trait SearchTrait
      * Add where condition to search current model
      *
      * @param Builder $query
-     * @param array $searchFieldParameters
+     * @param array $fieldParameters
      * @param string $table
      * @param string $searchColumn
      * @param string $searchText
      * @return Builder
      */
-    protected function searchThis(Builder $query, $searchFieldParameters, $table, $searchColumn, $searchText)
+    protected function searchThis(Builder $query, $fieldParameters, $table, $searchColumn, $searchText)
     {
-        $searchOperator = $searchFieldParameters['operator'] ?? 'like';
-        $searchValue = $searchFieldParameters['value'] ?? '%{{search}}%';
+        $searchOperator = $fieldParameters['operator'] ?? 'like';
+        $searchValue = $fieldParameters['value'] ?? '%{{search}}%';
 
         return $query->orWhere(
             $table . '.' . $searchColumn,
