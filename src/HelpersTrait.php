@@ -11,14 +11,25 @@ use Illuminate\Database\Eloquent\Relations\Relation;
 /**
  * Trait RelatedPlusHelpers
  *
- * Static helper functions
+ * Helper functions
+ *
+ * @property array attributes
+ * @property array nullable
+ * @property array order_fields
+ * @property array order_defaults
+ * @property array order_relations
+ * @property array order_with
+ * @property array search_fields
+ * @property string connection
+ * @method array getGlobalScopes()
+ *
  */
 trait HelpersTrait
 {
     /**
      * Return the sql for a query with the bindings replaced with the binding values
      *
-     * @param Builder $builder
+     * @param Builder|\Illuminate\Database\Query\Builder $builder
      * @return string
      */
     public function toSqlWithBindings($builder)

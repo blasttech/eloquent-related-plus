@@ -191,10 +191,10 @@ class RelationPlus
     /**
      * Adds a select for a min or max on the given column, depending on direction given
      *
-     * @param Builder $query
+     * @param Builder|\Illuminate\Database\Query\Builder $query
      * @param string $column
      * @param string $direction
-     * @return Builder
+     * @return Builder|\Illuminate\Database\Query\Builder
      */
     private function selectMinMax($query, $column, $direction)
     {

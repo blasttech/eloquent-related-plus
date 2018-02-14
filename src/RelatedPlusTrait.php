@@ -206,7 +206,7 @@ trait RelatedPlusTrait
      * @param string $type
      * @param boolean $where
      * @param string $direction
-     * @return Builder
+     * @return Builder|\Illuminate\Database\Query\Builder
      */
     public function scopeRelationJoin(
         Builder $query,
@@ -251,7 +251,7 @@ trait RelatedPlusTrait
      *
      * @param Builder $query
      * @param Builder $model
-     * @return Builder
+     * @return Builder|\Illuminate\Database\Query\Builder
      */
     public function scopeSetSubquery(Builder $query, $model)
     {
