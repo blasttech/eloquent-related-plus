@@ -353,6 +353,6 @@ class RelationPlus
             return $this->tableName . ' AS ' . $this->tableAlias;
         }
 
-        return $this->tableName;
+        return $this->relation->getConnection()->getDatabaseName() . '.' . $this->tableName;
     }
 }
