@@ -237,7 +237,14 @@ trait RelatedPlusTrait
     public function scopeSearch(Builder $query, $searchText = '')
     {
         $searchText = trim($searchText);
-
+        $searchText = htmlspecialchars($searchText);
+        $searchText = str_replace([
+            '\'',
+            '/'
+        ], [
+            '&#x27;',
+            '&#x2F;'
+        ], $searchText);
         // If search is set
         if ($searchText != "" && $this->hasSearchFields()) {
             $query = $this->checkSearchFields($query, $searchText);
