@@ -1,8 +1,7 @@
 <?php
 
-namespace App\Http\Traits;
+namespace Blasttech\EloquentRelatedPlus;
 
-use Blasttech\EloquentRelatedPlus\HelpersTrait;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
