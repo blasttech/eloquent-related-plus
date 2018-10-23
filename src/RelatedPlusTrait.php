@@ -51,7 +51,7 @@ trait RelatedPlusTrait
      */
     public function getSearchFields()
     {
-        return $this->search_fields;
+        return $this->hasSearchFields() ? $this->search_fields : [];
     }
 
     /**
