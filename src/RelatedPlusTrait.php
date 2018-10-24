@@ -43,6 +43,27 @@ trait RelatedPlusTrait
         });
     }
 
+
+    /**
+     * Get the search fields for the model
+     *
+     * @return array
+     */
+    public function getSearchFields()
+    {
+        return $this->hasSearchFields() ? $this->search_fields : [];
+    }
+
+    /**
+     * Set the search fields for the model
+     *
+     * @param array $searchFields
+     */
+    public function setSearchFields(array $searchFields)
+    {
+        $this->search_fields = $searchFields;
+    }
+
     /**
      * Add joins for one or more relations
      * This determines the foreign key relations automatically to prevent the need to figure out the columns.
