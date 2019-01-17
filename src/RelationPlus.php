@@ -169,8 +169,17 @@ class RelationPlus
      */
     private function getBelongsToColumns()
     {
+        // Use relation ownerKey if it contains table name, otherwise use getQualifiedOwnerKeyName
         $first = $this->relation->getOwnerKey();
+        if (!strpos($first, '.')) {
+            $first = $this->relation->getQualifiedOwnerKeyName();
+        }
+
+        // Use relation foreignKey if it contains table name, otherwise use getQualifiedForeignKey
         $second = $this->relation->getForeignKey();
+        if (!strpos($second, '.')) {
+            $second = $this->relation->getQualifiedForeignKey();
+        }
 
         return (object)['first' => $first, 'second' => $second];
     }
