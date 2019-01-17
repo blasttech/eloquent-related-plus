@@ -266,15 +266,20 @@ class RelationPlus
     {
         // Get where clauses from the relationship
         $wheres = collect($this->relation->toBase()->wheres)
-            ->where('type', 'Basic')
+            ->whereIn('type', ['Basic', 'Nested'])
             ->map(function ($where) {
-                // Add table name to column if it is absent
-                return [
-                    $this->columnWithTableName($where['column']),
-                    $where['operator'],
-                    $where['value']
-                ];
-            })->toArray();
+                return collect($where['type'] == 'Basic' ? [$where] : $where['query']->wheres)
+                    ->map(function ($where) {
+                        // Add table name to column if it is absent
+                        return [
+                            $this->columnWithTableName($where['column']),
+                            $where['operator'],
+                            $where['value']
+                        ];
+                    });
+            })
+            ->flatten(1)
+            ->toArray();
 
         if (!empty($wheres)) {
             $builder->where($wheres);
