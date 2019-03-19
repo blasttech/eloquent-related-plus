@@ -170,15 +170,15 @@ class RelationPlus
     private function getBelongsToColumns()
     {
         // Use relation ownerKey if it contains table name, otherwise use getQualifiedOwnerKeyName
-        $first = $this->relation->getOwnerKey();
+        $first = $this->relation->getOwnerKeyName();
         if (!strpos($first, '.')) {
             $first = $this->relation->getQualifiedOwnerKeyName();
         }
 
         // Use relation foreignKey if it contains table name, otherwise use getQualifiedForeignKey
-        $second = $this->relation->getForeignKey();
+        $second = $this->relation->getForeignKeyName();
         if (!strpos($second, '.')) {
-            $second = $this->relation->getQualifiedForeignKey();
+            $second = $this->relation->getQualifiedForeignKeyName();
         }
 
         return (object)['first' => $first, 'second' => $second];
