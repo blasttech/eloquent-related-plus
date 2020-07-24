@@ -367,6 +367,11 @@ class RelationPlus
             return $this->tableName . ' AS ' . $this->tableAlias;
         }
 
-        return $this->relation->getConnection()->getDatabaseName() . '.' . $this->tableName;
+        // it means the connection DB name is not on the table alias yet
+        if (strpos('.', $this->tableName) === null) {
+            return $this->relation->getConnection()->getDatabaseName() . '.' . $this->tableName;
+        }
+
+        return $this->tableName;
     }
 }
