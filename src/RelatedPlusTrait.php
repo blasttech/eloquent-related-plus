@@ -16,11 +16,11 @@ use Illuminate\Support\Facades\Schema;
  *
  * @property array attributes
  * @property array nullable
- * @property array order_fields
- * @property array order_defaults
- * @property array order_relations
- * @property array order_with
- * @property array search_fields
+ * @property array orderFields
+ * @property array orderDefaults
+ * @property array orderRelations
+ * @property array orderWith
+ * @property array searchFields
  * @property string connection
  * @method Model getModel()
  * @method string getTable()
@@ -51,7 +51,7 @@ trait RelatedPlusTrait
      */
     public function getSearchFields()
     {
-        return $this->hasSearchFields() ? $this->search_fields : [];
+        return $this->hasSearchFields() ? $this->searchFields : [];
     }
 
     /**
@@ -61,7 +61,7 @@ trait RelatedPlusTrait
      */
     public function setSearchFields(array $searchFields)
     {
-        $this->search_fields = $searchFields;
+        $this->searchFields = $searchFields;
     }
 
     /**
@@ -154,6 +154,7 @@ trait RelatedPlusTrait
         if (empty($query->getQuery()->columns)) {
             $query->select($this->getTable() . ".*");
         }
+
         if ($relatedSelect) {
             $query = $this->selectRelated($query, $relation);
         }
@@ -207,11 +208,11 @@ trait RelatedPlusTrait
      */
     public function scopeOrderByWith(Builder $query, $order)
     {
-        if (isset($this->order_with[$order])) {
+        if (isset($this->orderWith[$order])) {
             $query = $this->addOrderWith($query, $order);
         }
 
-        if (isset($this->order_fields[$order])) {
+        if (isset($this->orderFields[$order])) {
             $query = $this->addOrderJoin($query, $order);
         }
 
@@ -294,7 +295,7 @@ trait RelatedPlusTrait
      */
     public function scopeSetCustomOrder(Builder $query, $column, $direction)
     {
-        if (isset($this->order_defaults)) {
+        if (isset($this->orderDefaults)) {
             $column = $this->setOrderColumn($column);
             $direction = $this->setOrderDirection($direction);
         }
@@ -314,8 +315,8 @@ trait RelatedPlusTrait
     {
         $query->orderBy(DB::raw($column), $direction);
 
-        if (isset($this->order_relations) && (strpos($column, '.') !== false ||
-                isset($this->order_relations[$column]))) {
+        if (isset($this->orderRelations) && (strpos($column, '.') !== false ||
+                isset($this->orderRelations[$column]))) {
             $query = $this->joinRelatedTable($query, $this->getTableFromColumn($column));
         }
 

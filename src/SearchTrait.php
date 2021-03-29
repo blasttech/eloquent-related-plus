@@ -9,11 +9,11 @@ use Illuminate\Database\Eloquent\Model;
  * Trait SearchTrait
  *
  * @property array attributes
- * @property array order_fields
- * @property array order_defaults
- * @property array order_relations
- * @property array order_with
- * @property array search_fields
+ * @property array orderFields
+ * @property array orderDefaults
+ * @property array orderRelations
+ * @property array orderWith
+ * @property array searchFields
  * @property string connection
  */
 trait SearchTrait
@@ -28,10 +28,10 @@ trait SearchTrait
     protected function checkSearchFields($query, $searchText)
     {
         return $query->where(function (Builder $query) use ($searchText) {
-            if (isset($this->search_fields) && !empty($this->search_fields)) {
+            if (isset($this->searchFields) && !empty($this->searchFields)) {
                 /** @var Model $this */
                 $table = $this->getTable();
-                foreach ($this->search_fields as $searchField => $searchFieldParameters) {
+                foreach ($this->searchFields as $searchField => $searchFieldParameters) {
                     $query = $this->checkSearchField($query, $table, $searchField, $searchFieldParameters, $searchText);
                 }
             }
