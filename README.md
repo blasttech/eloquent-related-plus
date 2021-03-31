@@ -95,7 +95,7 @@ The method of joining the table. The default (false) uses an 'on' statement but 
 The $related_select option determines if the fields in the joined table will be included in the query. If true, the field names will be in the format '_table_name.column_name_', for example, '_customer.contact_name_' with the table name and period (.) **included** in the field name. This is to allow fields from joined tables to be used when they have the same column names. 
 
 ## orderByCustom
- * orderByCustom($order_field, $dir, $order_fields = null, $order_defaults = null)
+ * orderByCustom($orderField, $dir, $orderFields = null, $orderDefaults = null)
 
 #### Example
 

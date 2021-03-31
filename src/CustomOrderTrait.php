@@ -9,17 +9,17 @@ use InvalidArgumentException;
  * Trait CustomOrderTrait
  *
  * @property array attributes
- * @property array order_fields
- * @property array order_defaults
- * @property array order_relations
- * @property array order_with
- * @property array search_fields
+ * @property array orderFields
+ * @property array orderDefaults
+ * @property array orderRelations
+ * @property array orderWith
+ * @property array searchFields
  * @property string connection
  */
 trait CustomOrderTrait
 {
     /**
-     * Check $order_fields and $order_defaults are set
+     * Check $orderFields and $orderDefaults are set
      *
      * @param string $orderField
      * @param string $direction
@@ -31,13 +31,13 @@ trait CustomOrderTrait
     }
 
     /**
-     * Check $this->order_fields set correctly
+     * Check $this->orderFields set correctly
      *
      * @return bool
      */
     protected function hasOrderFields()
     {
-        return $this->hasProperty('order_fields');
+        return $this->hasProperty('orderFields');
     }
 
     /**
@@ -81,32 +81,32 @@ trait CustomOrderTrait
     protected function hasOrderDefaults($orderField, $direction)
     {
         if ($orderField === '' || $direction === '') {
-            return $this->hasProperty('order_defaults');
+            return $this->hasProperty('orderDefaults');
         }
 
         return true;
     }
 
     /**
-     * Check $this->search_fields set correctly
+     * Check $this->searchFields set correctly
      *
      * @return bool
      */
     protected function hasSearchFields()
     {
-        return $this->hasProperty('search_fields', false);
+        return $this->hasProperty('searchFields', false);
     }
 
     /**
-     * Override column if provided column not valid. If $column not in order_fields list, use default.
+     * Override column if provided column not valid. If $column not in orderFields list, use default.
      *
      * @param string $column
      * @return string
      */
     protected function setOrderColumn($column)
     {
-        if ($column == '' || !isset($this->order_fields[$column])) {
-            $column = $this->order_defaults['field'];
+        if ($column == '' || !isset($this->orderFields[$column])) {
+            $column = $this->orderDefaults['field'];
         }
 
         return $column;
@@ -121,14 +121,14 @@ trait CustomOrderTrait
     protected function setOrderDirection($direction)
     {
         if ($direction == '' || !in_array(strtoupper($direction), ['ASC', 'DESC'])) {
-            $direction = $this->order_defaults['dir'];
+            $direction = $this->orderDefaults['dir'];
         }
 
         return $direction;
     }
 
     /**
-     * Set order based on order_fields
+     * Set order based on orderFields
      *
      * @param Builder $query
      * @param string $column
@@ -137,15 +137,15 @@ trait CustomOrderTrait
      */
     protected function setOrder($query, $column, $direction)
     {
-        if (is_array($this->order_fields[$column])) {
+        if (is_array($this->orderFields[$column])) {
             return $this->setOrders($query, $column, $direction);
         }
 
-        return $query->orderByCheckModel($this->order_fields[$column], $direction);
+        return $query->orderByCheckModel($this->orderFields[$column], $direction);
     }
 
     /**
-     * Set order based on multiple order_fields
+     * Set order based on multiple orderFields
      *
      * @param Builder $query
      * @param string $column
@@ -154,7 +154,7 @@ trait CustomOrderTrait
      */
     protected function setOrders($query, $column, $direction)
     {
-        foreach ($this->order_fields[$column] as $dbField) {
+        foreach ($this->orderFields[$column] as $dbField) {
             $query->orderByCheckModel($dbField, $direction);
         }
 
@@ -170,9 +170,9 @@ trait CustomOrderTrait
      */
     protected function joinRelatedTable($query, $table)
     {
-        if (isset($this->order_relations[$table]) &&
-            !$this->hasJoin($query, $table, $this->order_relations[$table])) {
-            $columnRelations = $this->order_relations[$table];
+        if (isset($this->orderRelations[$table]) &&
+            !$this->hasJoin($query, $table, $this->orderRelations[$table])) {
+            $columnRelations = $this->orderRelations[$table];
 
             $query->modelJoin($columnRelations, '=', 'left', false, false);
         }
@@ -241,13 +241,13 @@ trait CustomOrderTrait
      */
     protected function addOrderWith(Builder $query, $order)
     {
-        $with = 'with' . $this->order_with[$order];
+        $with = 'with' . $this->orderWith[$order];
 
         return $query->$with();
     }
 
     /**
-     * Add join from order_fields
+     * Add join from orderFields
      *
      * @param Builder $query
      * @param string $order
@@ -255,11 +255,11 @@ trait CustomOrderTrait
      */
     protected function addOrderJoin(Builder $query, $order)
     {
-        $orderOption = (explode('.', $this->order_fields[$order]))[0];
+        $orderOption = (explode('.', $this->orderFields[$order]))[0];
 
-        if (isset($this->order_relations[$orderOption])) {
+        if (isset($this->orderRelations[$orderOption])) {
             $query->modelJoin(
-                $this->order_relations[$orderOption],
+                $this->orderRelations[$orderOption],
                 '=',
                 'left',
                 false,

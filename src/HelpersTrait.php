@@ -15,11 +15,11 @@ use Illuminate\Database\Eloquent\Relations\Relation;
  *
  * @property array attributes
  * @property array nullable
- * @property array order_fields
- * @property array order_defaults
- * @property array order_relations
- * @property array order_with
- * @property array search_fields
+ * @property array orderFields
+ * @property array orderDefaults
+ * @property array orderRelations
+ * @property array orderWith
+ * @property array searchFields
  * @property string connection
  * @method array getGlobalScopes()
  *

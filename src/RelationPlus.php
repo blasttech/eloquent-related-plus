@@ -207,9 +207,9 @@ class RelationPlus
      */
     private function selectMinMax($query, $column, $direction)
     {
-        $sql_direction = ($direction == 'asc' ? 'MIN' : 'MAX');
+        $sqlDirection = ($direction == 'asc' ? 'MIN' : 'MAX');
 
-        return $query->select(DB::raw($sql_direction . '(' . $this->addBackticks($column) . ')'));
+        return $query->select(DB::raw($sqlDirection . '(' . $this->addBackticks($column) . ')'));
     }
 
     /**
